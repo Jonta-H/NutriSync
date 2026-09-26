@@ -6,10 +6,10 @@ import {
 
 import * as service from "../services/patientService"
 
-import { CreatePatientDto } from "../dto/patient/createPatientDto"
+import type { CreatePatientDto } from "../dto/patient/createPatientDto"
 import type { UpdatePatientDto } from "../dto/patient/updatePatientDto"
 
-type PatientIdParams = { id: String };
+type PatientIdParams = { id: string };
 
 type CreatePatientRequest = Request<
     Record<string, never>,
@@ -69,7 +69,7 @@ export async function remove(req: Request<PatientIdParams>, res: Response, next:
     try {
         const id = Number(req.params.id);
 
-        await service.deleteByid(id);
+        await service.deleteById(id);
 
         res.status(204).end();
     } catch(e){

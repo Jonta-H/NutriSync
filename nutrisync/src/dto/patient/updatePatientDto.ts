@@ -1,7 +1,7 @@
-import { BiologicalSex } from "../../../generated/prisma/client";
+import type { BiologicalSex } from "../../../generated/prisma/client";
 
 // Dados para atualizar um paciente; todos os campos são opcionais
-export class UpdatePatientDto {
+export interface UpdatePatientDto {
   name?: string;
 
   birthDate?: Date;

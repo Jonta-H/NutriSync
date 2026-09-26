@@ -28,8 +28,8 @@ export async function updateById(id: number, data: UpdatePatientDto): Promise<Pa
     return repository.updateById(id, data)
 }
 
-export async function deleteByid(id: number): Promise<Patient> {
+export async function deleteById(id: number): Promise<Patient> {
     await findById(id)
 
-    return repository.deleteByid(id)
+    return repository.deleteById(id)
 }

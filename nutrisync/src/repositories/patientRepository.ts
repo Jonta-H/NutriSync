@@ -42,7 +42,7 @@ export function updateById(id: number, data: UpdatePatientDto) {
 
 
 // Exclui um paciente da tabela, buscando por seu id
-export function deleteByid(id: number) {
+export function deleteById(id: number) {
     return prisma.patient.delete({
         where: { id }
     })

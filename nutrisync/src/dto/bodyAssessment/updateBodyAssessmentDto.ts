@@ -1,7 +1,7 @@
-import { ActivityLevel } from "../../../generated/prisma/client";
+import type { ActivityLevel } from "../../../generated/prisma/client";
 
 // Dados para atualizar uma avaliação corporal; todos os campos são opcionais
-export class UpdateBodyAssessmentDto {
+export interface UpdateBodyAssessmentDto {
   assessmentDate?: Date;
 
   // Peso em kg
