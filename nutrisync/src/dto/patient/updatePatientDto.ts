@@ -16,22 +16,22 @@ export class UpdatePatientDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(120)
-  nome?: string;
+  name?: string;
 
   @IsOptional()
   @Type(() => Date)
   @IsDate()
-  dataNascimento?: Date;
+  birthDate?: Date;
 
   @IsOptional()
   @IsString()
   @IsNotEmpty()
   @MaxLength(40)
-  genero?: string;
+  gender?: string;
 
   @IsOptional()
   @IsEnum(SexoBiologico)
-  sexoBiologico?: SexoBiologico;
+  biologicalSex?: SexoBiologico;
 
   // CPF com ou sem máscara (000.000.000-00 ou 00000000000)
   @IsOptional()
@@ -43,5 +43,5 @@ export class UpdatePatientDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(20)
-  telefone?: string;
+  phone?: string;
 }
