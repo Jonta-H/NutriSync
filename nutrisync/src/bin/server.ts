@@ -3,7 +3,6 @@
 /**
  * Module dependencies.
  */
-import "reflect-metadata";
 import app from '../app'
 import chalk from 'chalk'
 import { createServer } from 'http'
