@@ -5,10 +5,10 @@ export interface UpdateBodyAssessmentDto {
   assessmentDate?: Date;
 
   // Peso em kg
-  weigth?: number;
+  weight?: number;
 
   // Altura em metros
-  heigth?: number;
+  height?: number;
 
   activityLevel?: ActivityLevel;
 }
