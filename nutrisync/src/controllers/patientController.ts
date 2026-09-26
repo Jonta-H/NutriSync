@@ -35,7 +35,7 @@ export async function findById(req: Request<PatientIdParams>, res: Response, nex
     try {
         const id = Number(req.params.id);
 
-        const patient = await service.deleteByid(id);
+        const patient = await service.findById(id);
 
         res.json(patient);
     } catch (e) {

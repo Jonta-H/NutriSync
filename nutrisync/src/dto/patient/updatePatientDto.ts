@@ -1,4 +1,4 @@
-import { SexoBiologico } from "../../../generated/prisma/client";
+import { BiologicalSex } from "../../../generated/prisma/client";
 
 // Dados para atualizar um paciente; todos os campos são opcionais
 export class UpdatePatientDto {
@@ -8,7 +8,7 @@ export class UpdatePatientDto {
 
   gender?: string;
 
-  biologicalSex?: SexoBiologico;
+  biologicalSex?: BiologicalSex;
 
   // CPF com ou sem máscara (000.000.000-00 ou 00000000000)
   cpf?: string;

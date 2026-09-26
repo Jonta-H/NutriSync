@@ -1,6 +1,6 @@
 import * as repository from "../repositories/patientRepository"
 
-import type { Patient } from "../generated/prisma/client"
+import type { Patient } from "../../generated/prisma/client"
 import type { CreatePatientDto } from "../dto/patient/createPatientDto"
 import type { UpdatePatientDto } from "../dto/patient/updatePatientDto"
 
