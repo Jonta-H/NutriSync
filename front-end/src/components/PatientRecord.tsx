@@ -6,6 +6,8 @@ import type { MealPlan } from '../types/MealPlan'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { activityLevels, formatCpf, formatDate, formatNumber, getInitials, unitLabel } from '../utils/format'
 import { bmiClassification } from '../utils/anthropometry'
+import { useDialog } from '../contexts/DialogContext'
+import { Breadcrumb } from './Breadcrumb'
 import { Icon } from './Icon'
 
 type RecordData = {
@@ -19,6 +21,7 @@ const activityLabel = (value: string) => activityLevels.find(level => level.valu
 // Prontuário: dados do paciente, avaliações corporais e planos alimentares atribuídos
 export function PatientRecord() {
   const { id } = useParams()
+  const { showAlert, showConfirm } = useDialog()
   const [data, setData] = useState<RecordData>({ patient: null, assessments: [], plans: [] })
   const [loading, setLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
@@ -41,7 +44,7 @@ export function PatientRecord() {
       if (active) {
         setLoadFailed(true)
         const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-        window.alert(`Não foi possível carregar o prontuário. ${message}`)
+        showAlert(`Não foi possível carregar o prontuário. ${message}`, 'error')
       }
     }
     finally {
@@ -57,8 +60,9 @@ export function PatientRecord() {
     }
   }, [id]) // <~ VETOR DE DEPENDÊNCIAS
 
-  async function handleDelete(path: string, description: string) {
-    if (!window.confirm(`Deseja realmente excluir ${description}?`)) return
+  // Exclusão com dupla confirmação (janela + caixa "Entendo que...")
+  async function handleDelete(path: string, title: string, description: React.ReactNode) {
+    if (!await showConfirm({ title, message: description, confirmLabel: 'Excluir', danger: true })) return
 
     try {
       const response = await apiFetch(path, { method: 'DELETE' })
@@ -67,12 +71,12 @@ export function PatientRecord() {
         throw new Error(await getErrorMessage(response))
       }
 
-      window.alert('Registro excluído com sucesso.')
+      showAlert('Registro excluído com sucesso.', 'success')
       fetchData(true)
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível excluir. ${message}`)
+      showAlert(`Não foi possível excluir. ${message}`, 'error')
     }
   }
 
@@ -110,9 +114,7 @@ export function PatientRecord() {
     <>
       <div className="ns-page-header">
         <div>
-          <Link to="/pacientes" className="btn btn-link px-0 mb-2">
-            <Icon name="back" size={16} /> Pacientes
-          </Link>
+          <Breadcrumb items={[{ label: 'Pacientes', to: '/pacientes' }, { label: patient.name }]} />
           <div className="d-flex align-items-center gap-3">
             <span className="ns-avatar ns-avatar-lg">{getInitials(patient.name)}</span>
             <div>
@@ -145,47 +147,57 @@ export function PatientRecord() {
       {loading && <p role="status">Aguarde, carregando...</p>}
 
       <div className="row g-3 mb-3">
-        <div className="col-12 col-xl-4">
-          <section className="ns-card h-100">
+        <div className="col-12 col-xl-5">
+          <section className="ns-card h-100 d-flex flex-column">
             <h2 className="ns-card-title">Dados pessoais</h2>
-            <dl className="ns-data-list mb-0">
-              <dt>Data de nascimento</dt>
-              <dd>{formatDate(patient.birthDate)} ({patient.age} anos)</dd>
-              <dt>CPF</dt>
-              <dd>{formatCpf(patient.cpf)}</dd>
-              <dt>Telefone</dt>
-              <dd>{patient.phone}</dd>
-              <dt>Sexo biológico</dt>
-              <dd>{patient.biologicalSex === 'FEMININO' ? 'Feminino' : 'Masculino'}</dd>
-              <dt>Gênero</dt>
-              <dd>{patient.gender}</dd>
-              <dt>Situação</dt>
-              <dd>{patient.active ? 'Em acompanhamento' : 'Inativo'}</dd>
+            <dl className="ns-data-list ns-data-grid">
+              <div>
+                <dt>Data de nascimento</dt>
+                <dd>{formatDate(patient.birthDate)} ({patient.age} anos)</dd>
+              </div>
+              <div>
+                <dt>CPF</dt>
+                <dd>{formatCpf(patient.cpf)}</dd>
+              </div>
+              <div>
+                <dt>Telefone</dt>
+                <dd>{patient.phone}</dd>
+              </div>
+              <div>
+                <dt>Sexo biológico</dt>
+                <dd>{patient.biologicalSex === 'FEMININO' ? 'Feminino' : 'Masculino'}</dd>
+              </div>
+              <div>
+                <dt>Gênero</dt>
+                <dd>{patient.gender}</dd>
+              </div>
+              <div>
+                <dt>Situação</dt>
+                <dd>{patient.active ? 'Em acompanhamento' : 'Inativo'}</dd>
+              </div>
             </dl>
           </section>
         </div>
 
-        <div className="col-12 col-xl-8">
-          <section className="ns-card h-100">
+        <div className="col-12 col-xl-7">
+          <section className="ns-card h-100 d-flex flex-column">
             <h2 className="ns-card-title">
               Indicadores atuais
               {latest && <span className="fw-normal text-secondary"> · avaliação de {formatDate(latest.assessmentDate)}</span>}
             </h2>
 
             {latest ? (
-              <div className="row g-2">
+              <div className="ns-indicators">
                 {indicators.map(indicator => (
-                  <div className="col-6 col-md-4" key={indicator.label}>
-                    <div className="ns-macro h-100">
-                      <div className="small text-secondary">{indicator.label}</div>
-                      <div className="ns-macro-value">{indicator.value}</div>
-                      <div className="small text-secondary">{indicator.detail}</div>
-                    </div>
+                  <div className="ns-macro" key={indicator.label}>
+                    <div className="small text-secondary">{indicator.label}</div>
+                    <div className="ns-macro-value">{indicator.value}</div>
+                    <div className="small text-secondary">{indicator.detail}</div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center text-secondary py-4">
+              <div className="text-center text-secondary py-4 my-auto">
                 <p>Nenhuma avaliação registrada. Registre a primeira para calcular IMC, TMB, GET e água.</p>
                 <Link to={`/pacientes/${patient.id}/avaliacoes/new`} className="btn btn-primary">
                   <Icon name="plus" /> Registrar avaliação
@@ -198,7 +210,9 @@ export function PatientRecord() {
 
       <section className="ns-card mb-3">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h2 className="ns-card-title mb-0">Avaliações corporais</h2>
+          <h2 className="ns-card-title mb-0">
+            Avaliações corporais <span className="fw-normal text-secondary">({assessments.length})</span>
+          </h2>
           <Link to={`/pacientes/${patient.id}/avaliacoes/new`} className="btn btn-sm btn-outline-primary">
             <Icon name="plus" size={16} /> Nova avaliação
           </Link>
@@ -244,7 +258,8 @@ export function PatientRecord() {
                       aria-label={`Excluir avaliação de ${formatDate(assessment.assessmentDate)}`}
                       onClick={() => handleDelete(
                         `/body-assessments/${assessment.id}`,
-                        `a avaliação de ${formatDate(assessment.assessmentDate)}`
+                        'Excluir avaliação corporal?',
+                        <>A avaliação de <strong>{formatDate(assessment.assessmentDate)}</strong> será excluída do prontuário de {patient.name}.</>
                       )}
                     >
                       <Icon name="trash" size={16} />
@@ -265,7 +280,9 @@ export function PatientRecord() {
 
       <section className="ns-card">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h2 className="ns-card-title mb-0">Planos alimentares</h2>
+          <h2 className="ns-card-title mb-0">
+            Planos alimentares <span className="fw-normal text-secondary">({plans.length})</span>
+          </h2>
           <Link to={`/pacientes/${patient.id}/planos/new`} className="btn btn-sm btn-outline-primary">
             <Icon name="plus" size={16} /> Novo plano alimentar
           </Link>
@@ -297,7 +314,11 @@ export function PatientRecord() {
                       type="button"
                       className="btn btn-sm btn-outline-danger"
                       aria-label={`Excluir plano ${plan.name}`}
-                      onClick={() => handleDelete(`/meal-plans/${plan.id}`, `o plano ${plan.name}`)}
+                      onClick={() => handleDelete(
+                        `/meal-plans/${plan.id}`,
+                        'Excluir plano alimentar?',
+                        <>O plano <strong>{plan.name}</strong> e todas as refeições dele serão excluídos.</>
+                      )}
                     >
                       <Icon name="trash" size={16} />
                     </button>

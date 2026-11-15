@@ -5,7 +5,8 @@ import type { BodyAssessment } from '../types/BodyAssessment'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { activityLevels, formatNumber } from '../utils/format'
 import { ageAt, bmiClassification, calculateAnthropometry } from '../utils/anthropometry'
-import { Icon } from './Icon'
+import { useDialog } from '../contexts/DialogContext'
+import { Breadcrumb } from './Breadcrumb'
 
 // Data de hoje no formato do input type="date" (AAAA-MM-DD), no fuso local
 function today() {
@@ -21,6 +22,7 @@ const formDefaults = () => ({
 })
 
 export function AssessmentsForm() {
+  const { showAlert, showConfirm } = useDialog()
   const { patientId, id } = useParams()
   const navigate = useNavigate()
   const isNew = id === 'new'
@@ -60,7 +62,7 @@ export function AssessmentsForm() {
       if (active) {
         setLoadFailed(true)
         const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-        window.alert(`Não foi possível carregar os dados. ${message}`)
+        showAlert(`Não foi possível carregar os dados. ${message}`, 'error')
       }
     }
     finally {
@@ -109,25 +111,37 @@ export function AssessmentsForm() {
       }
 
       setFormModified(false)
-      window.alert('Avaliação salva com sucesso.')
       navigate(recordPath)
+      showAlert('Avaliação salva com sucesso.', 'success')
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível salvar a avaliação. ${message}`)
+      showAlert(`Não foi possível salvar a avaliação. ${message}`, 'error')
     }
     finally {
       setLoading(false)
     }
   }
 
-  function handleBackButtonClick() {
-    if (formModified && !window.confirm('Há informações não salvas. Deseja realmente sair?')) {
+  // Sair do formulário (trilha de navegação ou botão Voltar), avisando se houver algo não salvo
+  async function handleLeave(to: string) {
+    if (formModified && !await showConfirm({
+      title: 'Sair sem salvar?',
+      message: 'Há informações não salvas neste formulário. Deseja realmente sair?',
+      confirmLabel: 'Sair sem salvar',
+    })) {
       return
     }
 
-    navigate(recordPath)
+    navigate(to)
   }
+
+  const backPath = recordPath
+  const trail = [
+    { label: 'Pacientes', to: '/pacientes' },
+    { label: patient?.name ?? 'Prontuário', to: recordPath },
+    { label: isNew ? 'Nova avaliação' : 'Editar avaliação' },
+  ]
 
   // ----- Prévia dos indicadores, calculada enquanto os dados são digitados -----
   const weight = Number(assessment.weight)
@@ -142,9 +156,7 @@ export function AssessmentsForm() {
     <>
       <div className="ns-page-header">
         <div>
-          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
-            <Icon name="back" size={16} /> Prontuário
-          </button>
+          <Breadcrumb items={trail} onNavigate={handleLeave} />
           <h1>{isNew ? 'Nova avaliação corporal' : 'Editar avaliação corporal'}</h1>
           <p className="text-secondary mb-0">
             {patient ? `${patient.name} · ${patient.biologicalSex === 'FEMININO' ? 'Feminino' : 'Masculino'}` : ' '}
@@ -242,7 +254,7 @@ export function AssessmentsForm() {
 
                 <div className="d-flex gap-2 mt-4">
                   <button type="submit" className="btn btn-primary">Salvar avaliação</button>
-                  <button type="button" className="btn btn-outline-secondary" onClick={handleBackButtonClick}>
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => handleLeave(backPath)}>
                     Voltar
                   </button>
                 </div>

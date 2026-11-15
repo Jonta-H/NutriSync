@@ -45,9 +45,10 @@ Acesse com o usuário criado pelo seed: login **nutri**, senha **nutri123**.
 - **Pacientes**: listagem com busca e filtro por status, cadastro, edição e exclusão. A meta diária (GET e água) vem da última avaliação corporal.
 - **Prontuário** do paciente: dados pessoais, indicadores atuais (IMC, TMB, GET e água, com variação de peso), histórico de avaliações corporais e planos alimentares atribuídos.
 - **Avaliações corporais**: registro e edição com IMC, água, TMB e GET calculados enquanto se digita; listagem geral em `/avaliacoes`.
-- **Planos alimentares**: plano do paciente criado do zero ou a partir de um modelo de dieta (refeições copiadas e ajustáveis), com total comparado ao GET.
+- **Planos alimentares**: plano do paciente criado do zero ou a partir de um modelo de dieta (refeições copiadas e ajustáveis), com total comparado ao GET. Aberto pelo prontuário, o paciente vem preenchido e travado; aberto pelo Painel (`/planos/new`), o paciente é escolhido no formulário.
 - **Alimentos**: banco de alimentos com valores por porção; cadastro, edição e exclusão.
 - **Dietas (modelos)**: modelos com refeições e alimentos, totais de energia e macronutrientes calculados em tempo real; cadastro, edição e exclusão.
+- **Navegação e avisos**: trilha de navegação clicável no topo das telas internas; avisos e confirmações em janelas (pop-ups) da própria aplicação, com dupla confirmação nas exclusões.
 
 ## Rotas da API
 
