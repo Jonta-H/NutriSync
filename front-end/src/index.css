@@ -304,21 +304,120 @@ h1, h2, h3, .h1, .h2, .h3 {
   color: var(--ns-primary);
 }
 
-.ns-bar-track {
-  height: 0.65rem;
-  border-radius: 999px;
-  background: #eeeaf4;
-  overflow: hidden;
+/* ---------- Gráfico de colunas (GET por paciente) ---------- */
+
+.ns-chart {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  grid-template-rows: 240px auto;
 }
 
-.ns-bar-fill {
+.ns-chart-axis {
+  position: relative;
+  font-size: 0.75rem;
+  color: var(--ns-muted);
+}
+
+.ns-chart-axis span {
+  position: absolute;
+  right: 0.6rem;
+  transform: translateY(50%);
+}
+
+.ns-chart-area {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  gap: 1rem;
+  border-bottom: 1px solid var(--ns-border);
+}
+
+.ns-chart-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--ns-border);
+}
+
+.ns-chart-column {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  flex: 1;
+  max-width: 96px;
   height: 100%;
-  border-radius: 999px;
-  background: var(--ns-primary);
+  outline: none;
+  cursor: default;
 }
 
-.ns-bar-fill.inactive {
+.ns-chart-bar {
+  position: relative;
+  width: 100%;
+  min-height: 2rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  border-radius: 0.5rem 0.5rem 0 0;
+  background: var(--ns-primary);
+  transition: opacity 0.15s ease;
+}
+
+/* Paciente inativo: coluna mais clara, com o valor em texto escuro para manter a leitura */
+.ns-chart-bar.inactive {
   background: #b9adc9;
+}
+
+.ns-chart-bar.inactive .ns-chart-value {
+  color: var(--ns-text);
+}
+
+/* Valor em kcal, escrito dentro da coluna; aparece ao passar o mouse ou focar */
+.ns-chart-value {
+  margin-top: 0.6rem;
+  padding: 0 0.25rem;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.ns-chart-column:hover .ns-chart-bar,
+.ns-chart-column:focus .ns-chart-bar {
+  opacity: 0.75;
+}
+
+.ns-chart-column:hover .ns-chart-value,
+.ns-chart-column:focus .ns-chart-value {
+  opacity: 1;
+}
+
+.ns-chart-column:focus-visible .ns-chart-bar {
+  outline: 2px solid var(--ns-primary-dark);
+  outline-offset: 2px;
+}
+
+.ns-chart-labels {
+  grid-column: 2;
+  display: flex;
+  justify-content: space-around;
+  gap: 1rem;
+  padding-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ns-chart-labels span {
+  flex: 1;
+  max-width: 96px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ns-macro {
