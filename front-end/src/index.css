@@ -1,0 +1,421 @@
+/* Identidade visual do NutriSync, aplicada sobre o Bootstrap */
+:root {
+  --ns-sidebar: #0f2a20;
+  --ns-sidebar-hover: #1a3d2f;
+  --ns-sidebar-text: #b9cfc4;
+  --ns-primary: #1d6b4e;
+  --ns-primary-dark: #15523c;
+  --ns-primary-soft: #e3f1ea;
+  --ns-bg: #f5f7f5;
+  --ns-border: #e2e8e4;
+  --ns-text: #1b2a23;
+  --ns-muted: #5f7069;
+  --ns-accent: #e8a33d;
+
+  --bs-body-font-family: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --bs-body-color: var(--ns-text);
+  --bs-body-bg: #fff;
+  --bs-primary: var(--ns-primary);
+  --bs-primary-rgb: 29, 107, 78;
+  --bs-link-color: var(--ns-primary);
+  --bs-link-color-rgb: 29, 107, 78;
+  --bs-link-hover-color: var(--ns-primary-dark);
+  --bs-border-color: var(--ns-border);
+  --bs-secondary-color: var(--ns-muted);
+}
+
+body {
+  background: var(--ns-bg);
+}
+
+h1, h2, h3, .h1, .h2, .h3 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--ns-primary);
+  --bs-btn-border-color: var(--ns-primary);
+  --bs-btn-hover-bg: var(--ns-primary-dark);
+  --bs-btn-hover-border-color: var(--ns-primary-dark);
+  --bs-btn-active-bg: var(--ns-primary-dark);
+  --bs-btn-active-border-color: var(--ns-primary-dark);
+  --bs-btn-disabled-bg: var(--ns-primary);
+  --bs-btn-disabled-border-color: var(--ns-primary);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--ns-primary);
+  --bs-btn-border-color: var(--ns-primary);
+  --bs-btn-hover-bg: var(--ns-primary);
+  --bs-btn-hover-border-color: var(--ns-primary);
+  --bs-btn-active-bg: var(--ns-primary-dark);
+  --bs-btn-active-border-color: var(--ns-primary-dark);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-weight: 500;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+  border-color: var(--ns-primary);
+  box-shadow: 0 0 0 0.2rem rgba(29, 107, 78, 0.2);
+}
+
+.form-check-input:checked {
+  background-color: var(--ns-primary);
+  border-color: var(--ns-primary);
+}
+
+/* ---------- Estrutura (menu lateral + conteúdo) ---------- */
+
+.ns-shell {
+  min-height: 100vh;
+}
+
+.ns-sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem 1rem;
+  background: var(--ns-sidebar);
+  z-index: 1030;
+}
+
+.ns-main {
+  margin-left: 260px;
+  padding: 2rem 2.5rem;
+  max-width: 1400px;
+}
+
+.ns-brand-sub {
+  font-size: 0.8rem;
+  color: var(--ns-sidebar-text);
+}
+
+.ns-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: 0.6rem;
+  color: var(--ns-sidebar-text);
+  text-decoration: none;
+  font-weight: 500;
+  text-align: left;
+}
+
+.ns-nav-link:hover {
+  background: var(--ns-sidebar-hover);
+  color: #fff;
+}
+
+.ns-nav-link.active {
+  background: var(--ns-primary);
+  color: #fff;
+}
+
+.ns-user {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+}
+
+.ns-topbar {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--ns-sidebar);
+  z-index: 1040;
+}
+
+@media (max-width: 991.98px) {
+  .ns-sidebar {
+    top: 60px;
+    width: 100%;
+    display: none;
+  }
+
+  .ns-sidebar.open {
+    display: flex;
+  }
+
+  .ns-main {
+    margin-left: 0;
+    padding: 1.25rem 1rem;
+  }
+}
+
+/* ---------- Componentes ---------- */
+
+.ns-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.ns-page-header h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.ns-card {
+  background: #fff;
+  border: 1px solid var(--ns-border);
+  border-radius: 0.9rem;
+  padding: 1.25rem;
+}
+
+.ns-card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.ns-stat-label {
+  color: var(--ns-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.ns-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin: 0.35rem 0;
+}
+
+.ns-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  background: var(--ns-primary-soft);
+  color: var(--ns-primary);
+}
+
+.ns-avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: var(--ns-primary-soft);
+  color: var(--ns-primary);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.ns-avatar-light {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.ns-badge-active {
+  background: var(--ns-primary-soft);
+  color: var(--ns-primary-dark);
+}
+
+.ns-badge-inactive {
+  background: #eceeed;
+  color: var(--ns-muted);
+}
+
+.ns-badge-active,
+.ns-badge-inactive {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.ns-table {
+  --bs-table-bg: #fff;
+  margin-bottom: 0;
+}
+
+.ns-table thead th {
+  background: #f0f4f1;
+  color: var(--ns-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom-width: 1px;
+  white-space: nowrap;
+}
+
+.ns-table-wrapper {
+  background: #fff;
+  border: 1px solid var(--ns-border);
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.ns-search {
+  position: relative;
+}
+
+.ns-search .ns-search-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ns-muted);
+  pointer-events: none;
+}
+
+.ns-search .form-control {
+  padding-left: 2.4rem;
+}
+
+.ns-tabs .btn {
+  border-radius: 999px;
+}
+
+.ns-list-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--ns-border);
+  color: inherit;
+  text-decoration: none;
+}
+
+.ns-list-row:last-child {
+  border-bottom: 0;
+}
+
+.ns-list-row:hover .ns-list-name {
+  color: var(--ns-primary);
+}
+
+.ns-bar-track {
+  height: 0.65rem;
+  border-radius: 999px;
+  background: #edf1ee;
+  overflow: hidden;
+}
+
+.ns-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ns-primary);
+}
+
+.ns-bar-fill.inactive {
+  background: #9fb3aa;
+}
+
+.ns-macro {
+  background: #f3f7f4;
+  border-radius: 0.7rem;
+  padding: 0.75rem;
+}
+
+.ns-macro-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.ns-diet-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--ns-border);
+  border-radius: 0.9rem;
+  padding: 1rem 1.25rem;
+}
+
+.ns-diet-card:hover {
+  border-color: var(--ns-primary);
+}
+
+.ns-diet-card.selected {
+  border-color: var(--ns-primary);
+  box-shadow: 0 0 0 2px var(--ns-primary-soft);
+}
+
+.ns-meal {
+  border: 1px solid var(--ns-border);
+  border-radius: 0.8rem;
+  padding: 1rem;
+}
+
+/* ---------- Login ---------- */
+
+.ns-login {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.ns-login-hero {
+  background: var(--ns-sidebar);
+  color: #fff;
+  padding: 3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.ns-login-hero h2 {
+  font-size: 2.4rem;
+  line-height: 1.15;
+  max-width: 28rem;
+}
+
+.ns-login-hero li {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+  color: var(--ns-sidebar-text);
+}
+
+.ns-login-hero li svg {
+  flex-shrink: 0;
+  color: #7fd1a8;
+  margin-top: 0.15rem;
+}
+
+.ns-login-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: #fff;
+}
+
+.ns-login-form form {
+  width: 100%;
+  max-width: 380px;
+}
+
+@media (max-width: 991.98px) {
+  .ns-login {
+    grid-template-columns: 1fr;
+  }
+
+  .ns-login-hero {
+    display: none;
+  }
+}
