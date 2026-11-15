@@ -3,9 +3,11 @@ import { Link } from 'react-router'
 import type { Food } from '../types/Food'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatNumber, formatPortion } from '../utils/format'
+import { useDialog } from '../contexts/DialogContext'
 import { Icon } from './Icon'
 
 export function FoodsList() {
+  const { showAlert, showConfirm } = useDialog()
   const [foods, setFoods] = useState<Food[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -17,7 +19,7 @@ export function FoodsList() {
     }
     catch (error) {
       if (error instanceof Error) {
-        window.alert('ERRO: ' + error.message)
+        showAlert(`Não foi possível carregar os dados. ${error.message}`, 'error')
       }
     }
     finally {
@@ -30,7 +32,14 @@ export function FoodsList() {
   }, [])
 
   async function handleDelete(food: Food) {
-    if (!window.confirm(`Deseja realmente excluir o alimento ${food.name}?`)) return
+    if (!await showConfirm({
+      title: 'Excluir alimento?',
+      message: <>O alimento <strong>{food.name}</strong> será excluído do banco de alimentos.</>,
+      confirmLabel: 'Excluir alimento',
+      danger: true,
+    })) {
+      return
+    }
 
     try {
       const response = await apiFetch(`/foods/${food.id}`, { method: 'DELETE' })
@@ -39,12 +48,12 @@ export function FoodsList() {
         throw new Error(await getErrorMessage(response))
       }
 
-      window.alert('Alimento excluído com sucesso.')
+      showAlert('Alimento excluído com sucesso.', 'success')
       fetchData()
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível excluir o alimento. ${message}`)
+      showAlert(`Não foi possível excluir o alimento. ${message}`, 'error')
     }
   }
 

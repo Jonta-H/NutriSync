@@ -3,9 +3,11 @@ import { Link } from 'react-router'
 import type { Diet } from '../types/Diet'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatNumber, unitLabel } from '../utils/format'
+import { useDialog } from '../contexts/DialogContext'
 import { Icon } from './Icon'
 
 export function DietsList() {
+  const { showAlert, showConfirm } = useDialog()
   const [diets, setDiets] = useState<Diet[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
@@ -20,7 +22,7 @@ export function DietsList() {
     }
     catch (error) {
       if (error instanceof Error) {
-        window.alert('ERRO: ' + error.message)
+        showAlert(`Não foi possível carregar os dados. ${error.message}`, 'error')
       }
     }
     finally {
@@ -33,7 +35,14 @@ export function DietsList() {
   }, [])
 
   async function handleDelete(diet: Diet) {
-    if (!window.confirm(`Deseja realmente excluir o modelo ${diet.name}?`)) return
+    if (!await showConfirm({
+      title: 'Excluir modelo de dieta?',
+      message: <>O modelo <strong>{diet.name}</strong> será excluído. Os planos alimentares já criados a partir dele não são afetados.</>,
+      confirmLabel: 'Excluir modelo',
+      danger: true,
+    })) {
+      return
+    }
 
     try {
       const response = await apiFetch(`/diets/${diet.id}`, { method: 'DELETE' })
@@ -42,12 +51,12 @@ export function DietsList() {
         throw new Error(await getErrorMessage(response))
       }
 
-      window.alert('Modelo excluído com sucesso.')
+      showAlert('Modelo excluído com sucesso.', 'success')
       fetchData()
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível excluir o modelo. ${message}`)
+      showAlert(`Não foi possível excluir o modelo. ${message}`, 'error')
     }
   }
 

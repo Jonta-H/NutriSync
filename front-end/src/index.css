@@ -576,3 +576,137 @@ h1, h2, h3, .h1, .h2, .h3 {
   border-radius: 0.7rem;
   padding: 0.75rem;
 }
+
+/* Dados pessoais em duas colunas para ocupar menos altura */
+.ns-data-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: space-evenly;
+  gap: 0.75rem 1rem;
+  margin: 0;
+}
+
+.ns-data-grid dd {
+  margin-bottom: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Indicadores atuais: grade que se estica para preencher todo o card */
+.ns-indicators {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 0.75rem;
+}
+
+.ns-indicators .ns-macro {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem 1.1rem;
+}
+
+.ns-indicators .ns-macro-value {
+  font-size: 1.45rem;
+  line-height: 1.2;
+  margin: 0.15rem 0;
+}
+
+@media (max-width: 767.98px) {
+  .ns-indicators {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ---------- Trilha de navegação ---------- */
+
+.ns-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  color: var(--ns-muted);
+}
+
+.ns-breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ns-breadcrumb a {
+  color: var(--ns-muted);
+  text-decoration: none;
+  border-radius: 0.35rem;
+}
+
+.ns-breadcrumb a:hover,
+.ns-breadcrumb a:focus-visible {
+  color: var(--ns-primary-dark);
+}
+
+.ns-breadcrumb [aria-current='page'] {
+  color: var(--ns-text);
+  font-weight: 600;
+}
+
+.ns-breadcrumb-back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.ns-breadcrumb-back:hover {
+  background: var(--ns-primary-soft);
+}
+
+.ns-breadcrumb-separator {
+  display: inline-flex;
+  color: #a79fb3;
+}
+
+/* ---------- Janelas (pop-ups) ---------- */
+
+.modal-backdrop.show {
+  opacity: 0.45;
+}
+
+.ns-dialog {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 1rem 3rem rgba(43, 24, 64, 0.25);
+}
+
+.ns-dialog-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 50%;
+}
+
+.ns-dialog-success { background: #e3f5ea; color: #1e7b45; }
+.ns-dialog-error { background: #fde8e8; color: #c62828; }
+.ns-dialog-warning { background: #fff3dc; color: #a35f00; }
+.ns-dialog-info { background: var(--ns-primary-soft); color: var(--ns-primary-dark); }
+
+.ns-dialog-check {
+  background: #fdf3f3;
+  border: 1px solid #f5cccc;
+  border-radius: 0.6rem;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+}
+
+.ns-dialog .modal-footer .btn {
+  min-width: 7.5rem;
+}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
+import { useDialog } from '../contexts/DialogContext'
 import type { Patient } from '../types/Patient'
 import type { Diet } from '../types/Diet'
 import type { Food } from '../types/Food'
@@ -7,6 +8,7 @@ import type { MealPlan } from '../types/MealPlan'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatNumber } from '../utils/format'
 import { calculateTotals, defaultMeals, mealsFromApi, mealsToPayload } from '../utils/meals'
+import { Breadcrumb } from './Breadcrumb'
 import { Icon } from './Icon'
 import { MealsEditor } from './MealsEditor'
 
@@ -16,7 +18,8 @@ function today() {
   return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 10)
 }
 
-const formDefaults = () => ({
+const formDefaults = (patientId = '') => ({
+  patientId,
   name: '',
   startDate: today(),
   notes: '',
@@ -24,15 +27,19 @@ const formDefaults = () => ({
   meals: defaultMeals(),
 })
 
-// Plano alimentar de um paciente: pode partir de um modelo de dieta e ser ajustado
+// Plano alimentar de um paciente: pode partir de um modelo de dieta e ser ajustado.
+// Aberto pelo prontuário (/pacientes/:patientId/planos/:id), o paciente vem preenchido e travado.
+// Aberto pelo Painel (/planos/new), o usuário escolhe o paciente.
 export function MealPlansForm() {
-  const { patientId, id } = useParams()
+  const { patientId: routePatientId, id } = useParams()
   const navigate = useNavigate()
+  const { showAlert, showConfirm } = useDialog()
   const isNew = id === 'new'
-  const recordPath = `/pacientes/${patientId}/prontuario`
+  const fromRecord = routePatientId !== undefined
+  const backPath = fromRecord ? `/pacientes/${routePatientId}/prontuario` : '/dashboard'
 
-  const [plan, setPlan] = useState(formDefaults)
-  const [patient, setPatient] = useState<Patient | null>(null)
+  const [plan, setPlan] = useState(() => formDefaults(routePatientId))
+  const [patients, setPatients] = useState<Patient[]>([])
   const [foods, setFoods] = useState<Food[]>([])
   const [diets, setDiets] = useState<Diet[]>([])
   const [loading, setLoading] = useState(true)
@@ -43,18 +50,18 @@ export function MealPlansForm() {
     setLoading(true)
     setLoadFailed(false)
     setFormModified(false)
-    setPlan(formDefaults())
+    setPlan(formDefaults(routePatientId))
 
     try {
-      // Paciente (GET da última avaliação), alimentos e modelos, em paralelo
-      const [patientResult, foodsResult, dietsResult] = await Promise.all([
-        apiGet<Patient>(`/patients/${patientId}`),
+      // Pacientes (com o GET da última avaliação), alimentos e modelos, em paralelo
+      const [patientsResult, foodsResult, dietsResult] = await Promise.all([
+        apiGet<Patient[]>('/patients'),
         apiGet<Food[]>('/foods'),
         apiGet<Diet[]>('/diets'),
       ])
 
       if (active) {
-        setPatient(patientResult)
+        setPatients(patientsResult)
         setFoods(foodsResult)
         setDiets(dietsResult)
       }
@@ -65,6 +72,7 @@ export function MealPlansForm() {
 
       if (active) {
         setPlan({
+          patientId: result.patientId.toString(),
           name: result.name,
           startDate: result.startDate.slice(0, 10),
           notes: result.notes ?? '',
@@ -77,7 +85,7 @@ export function MealPlansForm() {
       if (active) {
         setLoadFailed(true)
         const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-        window.alert(`Não foi possível carregar os dados. ${message}`)
+        showAlert(`Não foi possível carregar os dados. ${message}`, 'error')
       }
     }
     finally {
@@ -91,24 +99,32 @@ export function MealPlansForm() {
     return () => {
       active = false
     }
-  }, [patientId, id, isNew]) // <~ VETOR DE DEPENDÊNCIAS
+  }, [routePatientId, id, isNew]) // <~ VETOR DE DEPENDÊNCIAS
 
   function changePlan(changes: Partial<typeof plan>) {
     setPlan(previous => ({ ...previous, ...changes }))
     setFormModified(true)
   }
 
+  const patient = patients.find(p => p.id === Number(plan.patientId)) ?? null
+  // O paciente não pode ser trocado quando o plano vem do prontuário ou já existe
+  const patientLocked = fromRecord || !isNew
+
   // Copia as refeições do modelo escolhido para o plano
-  function handleApplyDiet() {
+  async function handleApplyDiet() {
     const diet = diets.find(d => d.id === Number(plan.dietId))
     if (!diet) {
-      window.alert('Escolha um modelo de dieta.')
+      showAlert('Escolha um modelo de dieta.', 'warning')
       return
     }
 
     // Só pede confirmação se já houver algum alimento escolhido nas refeições
     const hasFoods = plan.meals.some(meal => meal.items.some(item => item.foodId))
-    if (hasFoods && !window.confirm('As refeições atuais serão substituídas pelas do modelo. Continuar?')) {
+    if (hasFoods && !await showConfirm({
+      title: 'Substituir as refeições?',
+      message: `As refeições atuais serão substituídas pelas do modelo ${diet.name}.`,
+      confirmLabel: 'Substituir',
+    })) {
       return
     }
 
@@ -125,8 +141,13 @@ export function MealPlansForm() {
 
     if (loading || loadFailed) return
 
+    if (!plan.patientId) {
+      showAlert('Selecione o paciente do plano.', 'warning')
+      return
+    }
+
     if (plan.meals.length === 0) {
-      window.alert('Adicione pelo menos uma refeição ao plano.')
+      showAlert('Adicione pelo menos uma refeição ao plano.', 'warning')
       return
     }
 
@@ -134,7 +155,7 @@ export function MealPlansForm() {
 
     try {
       const payload = {
-        patientId: Number(patientId),
+        patientId: Number(plan.patientId),
         name: plan.name.trim(),
         startDate: `${plan.startDate}T00:00:00.000Z`,
         notes: plan.notes.trim() || null,
@@ -153,25 +174,40 @@ export function MealPlansForm() {
       }
 
       setFormModified(false)
-      window.alert('Plano alimentar salvo com sucesso.')
-      navigate(recordPath)
+      // Depois de salvar, abre o prontuário do paciente para mostrar o plano
+      navigate(`/pacientes/${plan.patientId}/prontuario`)
+      showAlert('Plano alimentar salvo com sucesso.', 'success')
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível salvar o plano. ${message}`)
+      showAlert(`Não foi possível salvar o plano. ${message}`, 'error')
     }
     finally {
       setLoading(false)
     }
   }
 
-  function handleBackButtonClick() {
-    if (formModified && !window.confirm('Há informações não salvas. Deseja realmente sair?')) {
+  // Sair do formulário (trilha de navegação ou botão Voltar)
+  async function handleLeave(to: string) {
+    if (formModified && !await showConfirm({
+      title: 'Sair sem salvar?',
+      message: 'Há informações não salvas neste plano. Deseja realmente sair?',
+      confirmLabel: 'Sair sem salvar',
+    })) {
       return
     }
 
-    navigate(recordPath)
+    navigate(to)
   }
+
+  const title = isNew ? 'Novo plano alimentar' : 'Editar plano alimentar'
+  const trail = fromRecord
+    ? [
+        { label: 'Pacientes', to: '/pacientes' },
+        { label: patient?.name ?? 'Prontuário', to: backPath },
+        { label: title },
+      ]
+    : [{ label: 'Painel', to: '/dashboard' }, { label: title }]
 
   // ----- Totais em tempo real, comparados ao GET da última avaliação -----
   const totals = calculateTotals(plan.meals, foods).total
@@ -189,11 +225,11 @@ export function MealPlansForm() {
     <>
       <div className="ns-page-header">
         <div>
-          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
-            <Icon name="back" size={16} /> Prontuário
-          </button>
-          <h1>{isNew ? 'Novo plano alimentar' : 'Editar plano alimentar'}</h1>
-          <p className="text-secondary mb-0">{patient ? patient.name : ' '}</p>
+          <Breadcrumb items={trail} onNavigate={handleLeave} />
+          <h1>{title}</h1>
+          <p className="text-secondary mb-0">
+            {patient ? `Plano de ${patient.name}` : 'Escolha o paciente e monte as refeições.'}
+          </p>
         </div>
       </div>
 
@@ -201,7 +237,7 @@ export function MealPlansForm() {
 
       {loadFailed && (
         <div className="alert alert-danger" role="alert">
-          Não foi possível carregar os dados. Volte ao prontuário e tente novamente.
+          Não foi possível carregar os dados. Volte à página anterior e tente novamente.
         </div>
       )}
 
@@ -213,6 +249,35 @@ export function MealPlansForm() {
             <div className="col-12 col-xl-8 d-flex flex-column gap-3">
               <div className="ns-card">
                 <div className="row g-3">
+                  <div className="col-12">
+                    <label htmlFor="patientId" className="form-label">Paciente</label>
+                    <select
+                      id="patientId"
+                      name="patientId"
+                      className="form-select"
+                      required
+                      disabled={patientLocked}
+                      value={plan.patientId}
+                      onChange={event => changePlan({ patientId: event.target.value })}
+                    >
+                      <option value="">Selecione o paciente</option>
+                      {patients.map(option => (
+                        <option key={option.id} value={option.id}>
+                          {option.name}{option.active ? '' : ' (inativo)'}
+                        </option>
+                      ))}
+                    </select>
+                    {patientLocked ? (
+                      <div className="form-text">
+                        <Icon name="lock" size={13} /> {fromRecord
+                          ? 'Plano aberto pelo prontuário: o paciente não pode ser trocado.'
+                          : 'O paciente de um plano já salvo não pode ser trocado.'}
+                      </div>
+                    ) : patient && !patient.latestAssessment && (
+                      <div className="form-text">Este paciente ainda não tem avaliação, então não há GET para comparar.</div>
+                    )}
+                  </div>
+
                   <div className="col-12">
                     <label htmlFor="dietId" className="form-label">
                       Partir de um modelo <span className="text-secondary">(opcional)</span>
@@ -312,7 +377,11 @@ export function MealPlansForm() {
                     </span>
                   </p>
                 ) : (
-                  <p className="small text-secondary mb-3">O paciente ainda não tem avaliação, então não há GET para comparar.</p>
+                  <p className="small text-secondary mb-3">
+                    {patient
+                      ? 'O paciente ainda não tem avaliação, então não há GET para comparar.'
+                      : 'Selecione o paciente para comparar o total com o GET dele.'}
+                  </p>
                 )}
 
                 <div className="row g-2 mb-4">
@@ -328,7 +397,7 @@ export function MealPlansForm() {
 
                 <div className="d-grid gap-2">
                   <button type="submit" className="btn btn-primary">Salvar plano</button>
-                  <button type="button" className="btn btn-outline-secondary" onClick={handleBackButtonClick}>
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => handleLeave(backPath)}>
                     Voltar
                   </button>
                 </div>

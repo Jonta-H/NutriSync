@@ -3,10 +3,13 @@ import { Link } from 'react-router'
 import type { BodyAssessment } from '../types/BodyAssessment'
 import { apiGet } from '../utils/api'
 import { formatDate, formatNumber, getInitials } from '../utils/format'
+import { useDialog } from '../contexts/DialogContext'
+import { Breadcrumb } from './Breadcrumb'
 import { Icon } from './Icon'
 
 // Todas as avaliações corporais registradas, da mais recente para a mais antiga
 export function AssessmentsList() {
+  const { showAlert } = useDialog()
   const [assessments, setAssessments] = useState<BodyAssessment[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -18,7 +21,7 @@ export function AssessmentsList() {
     }
     catch (error) {
       if (error instanceof Error) {
-        window.alert('ERRO: ' + error.message)
+        showAlert(`Não foi possível carregar os dados. ${error.message}`, 'error')
       }
     }
     finally {
@@ -37,6 +40,7 @@ export function AssessmentsList() {
     <>
       <div className="ns-page-header">
         <div>
+          <Breadcrumb items={[{ label: 'Painel', to: '/dashboard' }, { label: 'Avaliações corporais' }]} />
           <h1>Avaliações corporais</h1>
           <p className="text-secondary mb-0">
             {assessments.length} {assessments.length === 1 ? 'avaliação registrada' : 'avaliações registradas'} · para registrar uma nova, abra o prontuário do paciente
