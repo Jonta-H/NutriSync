@@ -9,6 +9,7 @@ import patientRouter from './routes/patients'
 import bodyAssessmentRouter from './routes/bodyAssessments'
 import foodRouter from './routes/foods'
 import dietRouter from './routes/diets'
+import mealPlanRouter from './routes/mealPlans'
 
 import { authenticate } from './middlewares/auth'
 import { errorHandler } from './middlewares/errorHandler'
@@ -36,6 +37,7 @@ app.use('/patients', authenticate, patientRouter)
 app.use('/body-assessments', authenticate, bodyAssessmentRouter)
 app.use('/foods', authenticate, foodRouter)
 app.use('/diets', authenticate, dietRouter)
+app.use('/meal-plans', authenticate, mealPlanRouter)
 
 app.use(errorHandler)
 

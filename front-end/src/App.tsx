@@ -6,6 +6,10 @@ import { Login } from "./components/Login";
 import { Dashboard } from "./components/Dashboard";
 import { PatientsList } from "./components/PatientsList";
 import { PatientsForm } from "./components/PatientsForm";
+import { PatientRecord } from "./components/PatientRecord";
+import { AssessmentsList } from "./components/AssessmentsList";
+import { AssessmentsForm } from "./components/AssessmentsForm";
+import { MealPlansForm } from "./components/MealPlansForm";
 import { FoodsList } from "./components/FoodsList";
 import { FoodsForm } from "./components/FoodsForm";
 import { DietsList } from "./components/DietsList";
@@ -30,6 +34,11 @@ function App() {
 
             <Route path="/pacientes" element={<PatientsList />} />
             <Route path="/pacientes/:id" element={<PatientsForm />} />
+            <Route path="/pacientes/:id/prontuario" element={<PatientRecord />} />
+            <Route path="/pacientes/:patientId/avaliacoes/:id" element={<AssessmentsForm />} />
+            <Route path="/pacientes/:patientId/planos/:id" element={<MealPlansForm />} />
+
+            <Route path="/avaliacoes" element={<AssessmentsList />} />
 
             <Route path="/alimentos" element={<FoodsList />} />
             <Route path="/alimentos/:id" element={<FoodsForm />} />

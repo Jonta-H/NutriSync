@@ -121,9 +121,12 @@ export function PatientsForm() {
         throw new Error(await getErrorMessage(response))
       }
 
+      // Após salvar, abre o prontuário do paciente
+      const saved: Patient = await response.json()
+
       setFormModified(false)
       window.alert('Paciente salvo com sucesso.')
-      navigate('/pacientes')
+      navigate(`/pacientes/${saved.id}/prontuario`)
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
@@ -139,7 +142,8 @@ export function PatientsForm() {
       return
     }
 
-    navigate('/pacientes')
+    // Cadastro novo volta para a listagem; edição volta para o prontuário
+    navigate(isNew ? '/pacientes' : `/pacientes/${id}/prontuario`)
   }
 
   const today = new Date().toISOString().slice(0, 10)
@@ -149,7 +153,7 @@ export function PatientsForm() {
       <div className="ns-page-header">
         <div>
           <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
-            <Icon name="back" size={16} /> Pacientes
+            <Icon name="back" size={16} /> {isNew ? 'Pacientes' : 'Prontuário'}
           </button>
           <h1>{isNew ? 'Novo paciente' : 'Editar paciente'}</h1>
           <p className="text-secondary mb-0">
