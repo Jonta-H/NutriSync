@@ -86,7 +86,14 @@ export function Dashboard() {
     .filter(patient => patient.latestAssessment)
     .sort((a, b) => b.latestAssessment!.assessmentDate.localeCompare(a.latestAssessment!.assessmentDate))
 
-  const maxTee = Math.max(...assessedPatients.map(patient => patient.latestAssessment!.tee), 1)
+  // Gráfico de colunas: pacientes avaliados em ordem alfabética (ordem da API).
+  // O topo do eixo é arredondado para o milhar acima do maior GET.
+  const chartPatients = patients.filter(patient => patient.latestAssessment)
+  const maxTee = Math.max(...chartPatients.map(patient => patient.latestAssessment!.tee), 1)
+  const chartMax = Math.ceil(maxTee / 1000) * 1000
+  const chartStep = chartMax <= 4000 ? 1000 : 2000
+  const chartTicks: number[] = []
+  for (let tick = 0; tick <= chartMax; tick += chartStep) chartTicks.push(tick)
 
   const term = search.trim().toLowerCase()
   const digits = term.replace(/\D/g, '')
@@ -181,27 +188,52 @@ export function Dashboard() {
           <section className="ns-card h-100">
             <h2 className="ns-card-title">Gasto Energético Total por paciente</h2>
 
-            {assessedPatients.map(patient => {
-              const tee = patient.latestAssessment!.tee
-              return (
-                <div key={patient.id} className="mb-3">
-                  <div className="d-flex justify-content-between small mb-1">
-                    <span className="fw-semibold">{patient.name}</span>
-                    <span className="text-secondary">{formatNumber(tee)} kcal</span>
-                  </div>
-                  <div
-                    className="ns-bar-track"
-                    role="img"
-                    aria-label={`${patient.name}: ${formatNumber(tee)} kcal`}
-                  >
-                    <div
-                      className={`ns-bar-fill ${patient.active ? '' : 'inactive'}`}
-                      style={{ width: `${(tee / maxTee) * 100}%` }}
-                    />
-                  </div>
+            {chartPatients.length > 0 && (
+              <div className="ns-chart">
+                {/* Eixo vertical com as marcações de kcal */}
+                <div className="ns-chart-axis" aria-hidden="true">
+                  {chartTicks.map(tick => (
+                    <span key={tick} style={{ bottom: `${(tick / chartMax) * 100}%` }}>
+                      {formatNumber(tick)}
+                    </span>
+                  ))}
                 </div>
-              )
-            })}
+
+                <div className="ns-chart-area">
+                  {/* Linhas de grade horizontais */}
+                  {chartTicks.map(tick => (
+                    <div key={tick} className="ns-chart-grid" style={{ bottom: `${(tick / chartMax) * 100}%` }} />
+                  ))}
+
+                  {chartPatients.map(patient => {
+                    const tee = patient.latestAssessment!.tee
+                    return (
+                      // tabIndex permite ver o valor também pelo teclado (foco) ou com toque no celular
+                      <div
+                        key={patient.id}
+                        className="ns-chart-column"
+                        tabIndex={0}
+                        aria-label={`${patient.name}: ${formatNumber(tee)} kcal`}
+                      >
+                        <div
+                          className={`ns-chart-bar ${patient.active ? '' : 'inactive'}`}
+                          style={{ height: `${(tee / chartMax) * 100}%` }}
+                        >
+                          <span className="ns-chart-value">{formatNumber(tee)} kcal</span>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Nomes abaixo de cada coluna */}
+                <div className="ns-chart-labels" aria-hidden="true">
+                  {chartPatients.map(patient => (
+                    <span key={patient.id} title={patient.name}>{patient.name.split(' ')[0]}</span>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {!loading && assessedPatients.length === 0 && (
               <p className="text-secondary mb-0">Nenhum paciente avaliado ainda.</p>

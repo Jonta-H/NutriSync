@@ -1,3 +1,5 @@
+import logo from '../assets/logo.png'
+
 // Ícones em SVG (traço no estilo "lucide"), para não depender de bibliotecas extras
 const paths = {
   dashboard: 'M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z',
@@ -40,12 +42,11 @@ export function Icon({ name, size = 18, className }: { name: IconName; size?: nu
   )
 }
 
-export function Logo({ size = 36 }: { size?: number }) {
+// Logo do NutriSync em um quadrado branco, que destaca o desenho roxo
+export function Logo({ size = 44 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="var(--ns-primary)" />
-      <path d="M9 22c0-7 5-12 14-13-1 9-6 14-13 14" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9 23l8-8" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
-    </svg>
+    <span className="ns-logo" style={{ width: size, height: size }}>
+      <img src={logo} alt="" />
+    </span>
   )
 }

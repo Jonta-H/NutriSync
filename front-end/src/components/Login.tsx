@@ -41,7 +41,7 @@ export function Login() {
     <div className="ns-login">
       <section className="ns-login-hero">
         <div className="d-flex align-items-center gap-2 mb-5">
-          <Logo size={40} />
+          <Logo size={56} />
           <div className="lh-sm">
             <div className="fw-bold fs-5">NutriSync</div>
             <div className="ns-brand-sub">Clínica Nutricional</div>
