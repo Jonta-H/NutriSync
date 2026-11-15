@@ -4,9 +4,23 @@
 @baseUrl = http://localhost:8888
 @contentType = application/json
 
+### Faz login para obter o token (as demais rotas exigem "Authorization: Bearer <token>")
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "login": "nutri",
+  "password": "nutri123"
+}
+
+###
+@token = {{login.response.body.token}}
+
 ### Cadastra um paciente para associar as avaliações -> 201
 # @name createPatient
 POST {{baseUrl}}/patients
+Authorization: Bearer {{token}}
 Content-Type: {{contentType}}
 
 {
@@ -24,6 +38,7 @@ Content-Type: {{contentType}}
 ### Cadastra uma avaliação corporal -> 201 (weight e height retornam como número)
 # @name createAssessment
 POST {{baseUrl}}/body-assessments
+Authorization: Bearer {{token}}
 Content-Type: {{contentType}}
 
 {
@@ -39,6 +54,7 @@ Content-Type: {{contentType}}
 
 ### Cadastra uma segunda avaliação do mesmo paciente, em outra data -> 201
 POST {{baseUrl}}/body-assessments
+Authorization: Bearer {{token}}
 Content-Type: {{contentType}}
 
 {
@@ -51,15 +67,19 @@ Content-Type: {{contentType}}
 
 ### Lista todas as avaliações, das mais recentes para as mais antigas -> 200
 GET {{baseUrl}}/body-assessments
+Authorization: Bearer {{token}}
 
 ### Lista as avaliações do paciente -> 200 (deve retornar as duas)
 GET {{baseUrl}}/body-assessments/patient/{{patientId}}
+Authorization: Bearer {{token}}
 
 ### Busca a avaliação pelo id -> 200
 GET {{baseUrl}}/body-assessments/{{assessmentId}}
+Authorization: Bearer {{token}}
 
 ### Atualiza parcialmente a avaliação -> 200
 PUT {{baseUrl}}/body-assessments/{{assessmentId}}
+Authorization: Bearer {{token}}
 Content-Type: {{contentType}}
 
 {
@@ -69,6 +89,7 @@ Content-Type: {{contentType}}
 
 ### Tenta cadastrar outra avaliação do mesmo paciente na mesma data -> erro (@@unique patientId + assessmentDate)
 POST {{baseUrl}}/body-assessments
+Authorization: Bearer {{token}}
 Content-Type: {{contentType}}
 
 {
@@ -81,6 +102,7 @@ Content-Type: {{contentType}}
 
 ### Tenta cadastrar avaliação para paciente inexistente -> 404
 POST {{baseUrl}}/body-assessments
+Authorization: Bearer {{token}}
 Content-Type: {{contentType}}
 
 {
@@ -93,6 +115,7 @@ Content-Type: {{contentType}}
 
 ### Tenta cadastrar com valor inválido no enum activityLevel -> erro
 POST {{baseUrl}}/body-assessments
+Authorization: Bearer {{token}}
 Content-Type: {{contentType}}
 
 {
@@ -105,21 +128,28 @@ Content-Type: {{contentType}}
 
 ### Lista avaliações de paciente inexistente -> 404
 GET {{baseUrl}}/body-assessments/patient/999999
+Authorization: Bearer {{token}}
 
 ### Busca uma avaliação inexistente -> 404
 GET {{baseUrl}}/body-assessments/999999
+Authorization: Bearer {{token}}
 
 ### Busca com id que não é número -> erro
 GET {{baseUrl}}/body-assessments/abc
+Authorization: Bearer {{token}}
 
 ### Exclui a avaliação -> 204
 DELETE {{baseUrl}}/body-assessments/{{assessmentId}}
+Authorization: Bearer {{token}}
 
 ### Confirma a exclusão -> 404
 GET {{baseUrl}}/body-assessments/{{assessmentId}}
+Authorization: Bearer {{token}}
 
 ### Exclui o paciente; a avaliação restante é removida por cascade -> 204
 DELETE {{baseUrl}}/patients/{{patientId}}
+Authorization: Bearer {{token}}
 
 ### Confirma o cascade: não deve restar avaliação deste paciente
 GET {{baseUrl}}/body-assessments
+Authorization: Bearer {{token}}
