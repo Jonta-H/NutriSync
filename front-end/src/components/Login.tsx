@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import { useAuth } from '../contexts/AuthContext'
-import { Icon, Logo } from './Icon'
+import logo from '../assets/logo.png'
 
 export function Login() {
   const { user, login } = useAuth()
@@ -41,7 +41,9 @@ export function Login() {
     <div className="ns-login">
       <section className="ns-login-hero">
         <div className="d-flex align-items-center gap-2 mb-5">
-          <Logo size={40} />
+          <span className="ns-logo ns-logo-lg">
+            <img src={logo} alt="" />
+          </span>
           <div className="lh-sm">
             <div className="fw-bold fs-5">NutriSync</div>
             <div className="ns-brand-sub">Clínica Nutricional</div>
@@ -50,10 +52,10 @@ export function Login() {
 
         <div className="my-auto">
           <h2 className="mb-4">Menos conta na calculadora, mais tempo com o paciente.</h2>
-          <ul className="list-unstyled mb-0">
-            <li><Icon name="check" />IMC, água, TMB e GET calculados na hora da avaliação</li>
-            <li><Icon name="check" />Planos alimentares a partir de modelos, com totais em tempo real</li>
-            <li><Icon name="check" />PDF do plano pronto para enviar ao paciente</li>
+          <ul className="ps-3 mb-0">
+            <li>IMC, água, TMB e GET calculados na hora da avaliação</li>
+            <li>Planos alimentares a partir de modelos, com totais em tempo real</li>
+            <li>PDF do plano pronto para enviar ao paciente</li>
           </ul>
         </div>
 
@@ -63,7 +65,9 @@ export function Login() {
       <section className="ns-login-form">
         <form onSubmit={handleFormSubmit}>
           <div className="d-flex align-items-center gap-2 mb-4 d-lg-none">
-            <Logo />
+            <span className="ns-logo">
+              <img src={logo} alt="" />
+            </span>
             <span className="fw-bold fs-5">NutriSync</span>
           </div>
 

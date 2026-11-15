@@ -1,24 +1,23 @@
 /* Identidade visual do NutriSync, aplicada sobre o Bootstrap */
 :root {
-  --ns-sidebar: #0f2a20;
-  --ns-sidebar-hover: #1a3d2f;
-  --ns-sidebar-text: #b9cfc4;
-  --ns-primary: #1d6b4e;
-  --ns-primary-dark: #15523c;
-  --ns-primary-soft: #e3f1ea;
-  --ns-bg: #f5f7f5;
-  --ns-border: #e2e8e4;
-  --ns-text: #1b2a23;
-  --ns-muted: #5f7069;
-  --ns-accent: #e8a33d;
+  --ns-sidebar: #2b1840;
+  --ns-sidebar-hover: #3d2459;
+  --ns-sidebar-text: #d2c6e3;
+  --ns-primary: #7e57c2;
+  --ns-primary-dark: #673ab7;
+  --ns-primary-soft: #efe8fa;
+  --ns-bg: #f7f5fa;
+  --ns-border: #e6e1ee;
+  --ns-text: #241b30;
+  --ns-muted: #655c72;
 
   --bs-body-font-family: 'Figtree', system-ui, 'Segoe UI', Roboto, sans-serif;
   --bs-body-color: var(--ns-text);
   --bs-body-bg: #fff;
   --bs-primary: var(--ns-primary);
-  --bs-primary-rgb: 29, 107, 78;
+  --bs-primary-rgb: 126, 87, 194;
   --bs-link-color: var(--ns-primary);
-  --bs-link-color-rgb: 29, 107, 78;
+  --bs-link-color-rgb: 126, 87, 194;
   --bs-link-hover-color: var(--ns-primary-dark);
   --bs-border-color: var(--ns-border);
   --bs-secondary-color: var(--ns-muted);
@@ -54,10 +53,6 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
   font-weight: 500;
 }
 
@@ -65,7 +60,7 @@ h1, h2, h3, .h1, .h2, .h3 {
 .form-select:focus,
 .form-check-input:focus {
   border-color: var(--ns-primary);
-  box-shadow: 0 0 0 0.2rem rgba(29, 107, 78, 0.2);
+  box-shadow: 0 0 0 0.2rem rgba(126, 87, 194, 0.25);
 }
 
 .form-check-input:checked {
@@ -94,6 +89,32 @@ h1, h2, h3, .h1, .h2, .h3 {
   margin-left: 260px;
   padding: 2rem 2.5rem;
   max-width: 1400px;
+}
+
+/* Logo em um quadrado branco, que destaca o desenho roxo sobre o fundo escuro */
+.ns-logo {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 4px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+.ns-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ns-logo-lg {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
 }
 
 .ns-brand-sub {
@@ -198,16 +219,6 @@ h1, h2, h3, .h1, .h2, .h3 {
   margin: 0.35rem 0;
 }
 
-.ns-stat-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.6rem;
-  background: var(--ns-primary-soft);
-  color: var(--ns-primary);
-}
 
 .ns-avatar {
   display: inline-flex;
@@ -234,7 +245,7 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 
 .ns-badge-inactive {
-  background: #eceeed;
+  background: #eeecf1;
   color: var(--ns-muted);
 }
 
@@ -253,7 +264,7 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 
 .ns-table thead th {
-  background: #f0f4f1;
+  background: #f3eff8;
   color: var(--ns-muted);
   font-size: 0.8rem;
   font-weight: 600;
@@ -270,22 +281,6 @@ h1, h2, h3, .h1, .h2, .h3 {
   overflow: hidden;
 }
 
-.ns-search {
-  position: relative;
-}
-
-.ns-search .ns-search-icon {
-  position: absolute;
-  left: 0.8rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--ns-muted);
-  pointer-events: none;
-}
-
-.ns-search .form-control {
-  padding-left: 2.4rem;
-}
 
 .ns-tabs .btn {
   border-radius: 999px;
@@ -312,7 +307,7 @@ h1, h2, h3, .h1, .h2, .h3 {
 .ns-bar-track {
   height: 0.65rem;
   border-radius: 999px;
-  background: #edf1ee;
+  background: #eeeaf4;
   overflow: hidden;
 }
 
@@ -323,11 +318,11 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 
 .ns-bar-fill.inactive {
-  background: #9fb3aa;
+  background: #b9adc9;
 }
 
 .ns-macro {
-  background: #f3f7f4;
+  background: #f5f1fa;
   border-radius: 0.7rem;
   padding: 0.75rem;
 }
@@ -385,17 +380,10 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 
 .ns-login-hero li {
-  display: flex;
-  gap: 0.6rem;
   margin-bottom: 0.85rem;
   color: var(--ns-sidebar-text);
 }
 
-.ns-login-hero li svg {
-  flex-shrink: 0;
-  color: #7fd1a8;
-  margin-top: 0.15rem;
-}
 
 .ns-login-form {
   display: flex;

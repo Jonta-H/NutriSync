@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import type { Food } from '../types/Food'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
-import { Icon } from './Icon'
 
 // Inputs controlados recebem strings, inclusive os campos numéricos.
 const formDefaults = {
@@ -147,9 +146,6 @@ export function FoodsForm() {
     <>
       <div className="ns-page-header">
         <div>
-          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
-            <Icon name="back" size={16} /> Banco de alimentos
-          </button>
           <h1>{isNew ? 'Novo alimento' : 'Editar alimento'}</h1>
           <p className="text-secondary mb-0">
             Informe os valores nutricionais referentes à porção indicada.
