@@ -17,8 +17,10 @@ export type NutritionTotals = {
     fiber: number;
 }
 
+export type MealWithItems = Meal & { items: (MealItem & { food: Food })[] }
+
 type DietWithMeals = Diet & {
-    meals: (Meal & { items: (MealItem & { food: Food })[] })[]
+    meals: MealWithItems[]
 }
 
 export type MealItemResponse = Omit<MealItem, "quantity"> & {
@@ -74,8 +76,10 @@ function itemTotals(food: foodService.FoodResponse, quantity: number): Nutrition
     }
 }
 
-function toResponse(diet: DietWithMeals): DietResponse {
-    const meals = diet.meals.map(meal => {
+// Converte as refeições (de um modelo ou de um plano) e calcula os totais de cada uma e do dia.
+// Também usado pelo serviço de planos alimentares.
+export function mealsToResponse(dbMeals: MealWithItems[]): { meals: MealResponse[]; totals: NutritionTotals } {
+    const meals = dbMeals.map(meal => {
         const items = meal.items.map(item => {
             const food = foodService.toResponse(item.food)
             const quantity = item.quantity.toNumber()
@@ -93,11 +97,15 @@ function toResponse(diet: DietWithMeals): DietResponse {
 
     const allItems = meals.flatMap(meal => meal.items.map(item => itemTotals(item.food, item.quantity)))
 
-    return { ...diet, meals, totals: sumTotals(allItems) }
+    return { meals, totals: sumTotals(allItems) }
+}
+
+function toResponse(diet: DietWithMeals): DietResponse {
+    return { ...diet, ...mealsToResponse(diet.meals) }
 }
 
 // Confere as refeições antes de gravar: nome, horário HH:MM, quantidades positivas e alimentos existentes
-async function validateMeals(meals: MealDto[] | undefined): Promise<void> {
+export async function validateMeals(meals: MealDto[] | undefined): Promise<void> {
     if (!Array.isArray(meals)) throw new BadRequestError("Informe as refeições do modelo.")
 
     for (const meal of meals) {

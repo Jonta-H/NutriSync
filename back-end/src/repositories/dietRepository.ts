@@ -3,7 +3,8 @@ import { prisma } from "../database/client";
 import type { MealDto } from "../dto/diet/createDietDto";
 
 // Refeições ordenadas pela posição, com os alimentos de cada uma
-const include = {
+// (também usado pelos planos alimentares dos pacientes)
+export const include = {
     meals: {
         orderBy: { position: "asc" as const },
         include: {
@@ -16,7 +17,7 @@ const include = {
 }
 
 // Converte as refeições do DTO para o formato de criação aninhada do Prisma
-function mealsToCreate(meals: MealDto[]) {
+export function mealsToCreate(meals: MealDto[]) {
     return meals.map((meal, position) => ({
         name: meal.name,
         time: meal.time,

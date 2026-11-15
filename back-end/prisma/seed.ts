@@ -51,6 +51,18 @@ const patients = [
     },
 ]
 
+// Avaliações anteriores (histórico), por CPF do paciente
+const previousAssessments = [
+    { cpf: "12345678900", assessmentDate: "2026-04-15", weight: 75.0, height: 1.65, activityLevel: "LIGEIRAMENTE_ATIVO" as const },
+    { cpf: "98765432100", assessmentDate: "2026-03-10", weight: 83.1, height: 1.81, activityLevel: "MUITO_ATIVO" as const },
+]
+
+// Planos alimentares atribuídos: [CPF do paciente, modelo de origem, data de início]
+const mealPlans: [string, string, string][] = [
+    ["12345678900", "Emagrecimento", "2026-07-20"],
+    ["98765432100", "Hipertrofia", "2026-06-28"],
+]
+
 // Modelos de dieta: refeições com [alimento, quantidade em g ou ml]
 const diets = [
     {
@@ -133,6 +145,52 @@ async function main() {
                                 quantity: quantity as number
                             }))
                         }
+                    }))
+                }
+            }
+        })
+    }
+
+    for (const { cpf, assessmentDate, ...assessment } of previousAssessments) {
+        const patient = await prisma.patient.findUnique({ where: { cpf } })
+
+        if (!patient) continue
+
+        const date = toDate(assessmentDate)
+
+        await prisma.bodyAssessment.upsert({
+            where: { patientId_assessmentDate: { patientId: patient.id, assessmentDate: date } },
+            update: {},
+            create: { ...assessment, assessmentDate: date, patientId: patient.id }
+        })
+    }
+
+    for (const [cpf, dietName, startDate] of mealPlans) {
+        const patient = await prisma.patient.findUnique({ where: { cpf } })
+        const diet = await prisma.diet.findUnique({
+            where: { name: dietName },
+            include: { meals: { orderBy: { position: "asc" }, include: { items: true } } }
+        })
+
+        if (!patient || !diet) continue
+
+        // Só cria o plano se o paciente ainda não tiver nenhum
+        if (await prisma.mealPlan.count({ where: { patientId: patient.id } }) > 0) continue
+
+        // As refeições do modelo são copiadas para o plano do paciente
+        await prisma.mealPlan.create({
+            data: {
+                name: `${diet.name} · ${patient.name.split(" ")[0]}`,
+                startDate: toDate(startDate),
+                notes: diet.notes,
+                patientId: patient.id,
+                dietId: diet.id,
+                meals: {
+                    create: diet.meals.map(meal => ({
+                        name: meal.name,
+                        time: meal.time,
+                        position: meal.position,
+                        items: { create: meal.items.map(item => ({ foodId: item.foodId, quantity: item.quantity })) }
                     }))
                 }
             }

@@ -40,6 +40,7 @@ model Patient {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   assessments BodyAssessment[]
+  mealPlans   MealPlan[]
 }
 
 model BodyAssessment {
@@ -108,10 +109,32 @@ model Diet {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  meals     Meal[]
+  mealPlans MealPlan[]
+}
+
+// Plano alimentar atribuído a um paciente. Pode ser criado a partir de um
+// modelo de dieta (as refeições são copiadas e podem ser ajustadas depois).
+model MealPlan {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(120)
+  startDate DateTime @map("start_date") @db.Date
+  notes     String?
+
+  patientId Int     @map("patient_id")
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  // Modelo de dieta usado como base (opcional)
+  dietId Int?  @map("diet_id")
+  diet   Diet? @relation(fields: [dietId], references: [id], onDelete: SetNull, onUpdate: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
   meals Meal[]
 }
 
-// Refeição de um modelo de dieta (ex.: 07:00 · Café da manhã)
+// Refeição de um modelo de dieta OU de um plano alimentar (ex.: 07:00 · Café da manhã)
 model Meal {
   id       Int    @id @default(autoincrement())
   name     String @db.VarChar(60)
@@ -119,8 +142,13 @@ model Meal {
   time     String @db.VarChar(5)
   position Int    @default(0)
 
-  dietId Int  @map("diet_id")
-  diet   Diet @relation(fields: [dietId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  // Preenchido quando a refeição pertence a um modelo de dieta
+  dietId Int?  @map("diet_id")
+  diet   Diet? @relation(fields: [dietId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  // Preenchido quando a refeição pertence a um plano alimentar de paciente
+  mealPlanId Int?      @map("meal_plan_id")
+  mealPlan   MealPlan? @relation(fields: [mealPlanId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
   items MealItem[]
 }
