@@ -42,7 +42,7 @@ export function Icon({ name, size = 18, className }: { name: IconName; size?: nu
   )
 }
 
-// Logo do NutriSync em um quadrado branco, que destaca o desenho roxo
+// Logo do NutriSync
 export function Logo({ size = 44 }: { size?: number }) {
   return (
     <span className="ns-logo" style={{ width: size, height: size }}>
