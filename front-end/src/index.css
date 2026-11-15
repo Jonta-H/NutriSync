@@ -73,7 +73,7 @@ h1, h2, h3, .h1, .h2, .h3 {
   border-color: var(--ns-primary);
 }
 
-/* ---------- Estrutura (menu lateral + conteúdo) ---------- */
+/* ---------- Estrutura (menu lateral) ---------- */
 
 .ns-shell {
   min-height: 100vh;
