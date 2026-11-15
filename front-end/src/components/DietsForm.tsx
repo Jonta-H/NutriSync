@@ -1,51 +1,18 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
-import type { Diet, NutritionTotals } from '../types/Diet'
+import type { Diet } from '../types/Diet'
 import type { Food } from '../types/Food'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
-import { formatNumber, formatPortion, unitLabel } from '../utils/format'
+import { formatNumber } from '../utils/format'
+import { calculateTotals, defaultMeals, mealsFromApi, mealsToPayload } from '../utils/meals'
 import { Icon } from './Icon'
-
-// Estado do formulário: campos como string; "key" identifica cada linha na tela
-type ItemForm = { key: number; foodId: string; quantity: string }
-type MealForm = { key: number; name: string; time: string; items: ItemForm[] }
-
-let nextKey = 1
-const newItem = (): ItemForm => ({ key: nextKey++, foodId: '', quantity: '' })
-const newMeal = (name = '', time = ''): MealForm => ({ key: nextKey++, name, time, items: [newItem()] })
+import { MealsEditor } from './MealsEditor'
 
 const formDefaults = () => ({
   name: '',
   notes: '',
-  meals: [newMeal('Café da manhã', '07:00'), newMeal('Almoço', '12:00')],
+  meals: defaultMeals(),
 })
-
-const emptyTotals = (): NutritionTotals => ({ calories: 0, protein: 0, carbohydrates: 0, fat: 0, fiber: 0 })
-
-// Valores do alimento são por porção; a quantidade informada é proporcional a ela
-function itemTotals(food: Food | undefined, quantity: string): NutritionTotals {
-  const amount = Number(quantity)
-  if (!food || !(amount > 0)) return emptyTotals()
-
-  const factor = amount / food.portionAmount
-  return {
-    calories: food.calories * factor,
-    protein: food.protein * factor,
-    carbohydrates: food.carbohydrates * factor,
-    fat: food.fat * factor,
-    fiber: food.fiber * factor,
-  }
-}
-
-function sum(list: NutritionTotals[]): NutritionTotals {
-  return list.reduce((total, item) => ({
-    calories: total.calories + item.calories,
-    protein: total.protein + item.protein,
-    carbohydrates: total.carbohydrates + item.carbohydrates,
-    fat: total.fat + item.fat,
-    fiber: total.fiber + item.fiber,
-  }), emptyTotals())
-}
 
 export function DietsForm() {
   const { id } = useParams()
@@ -77,16 +44,7 @@ export function DietsForm() {
         setDiet({
           name: result.name,
           notes: result.notes ?? '',
-          meals: result.meals.map(meal => ({
-            key: nextKey++,
-            name: meal.name,
-            time: meal.time,
-            items: meal.items.map(item => ({
-              key: nextKey++,
-              foodId: item.foodId.toString(),
-              quantity: item.quantity.toString(),
-            })),
-          })),
+          meals: mealsFromApi(result.meals),
         })
       }
     }
@@ -117,45 +75,9 @@ export function DietsForm() {
     setFormModified(true)
   }
 
-  function updateMeal(mealKey: number, changes: Partial<MealForm>) {
-    changeDiet({
-      meals: diet.meals.map(meal => meal.key === mealKey ? { ...meal, ...changes } : meal),
-    })
-  }
-
-  function updateItem(mealKey: number, itemKey: number, changes: Partial<ItemForm>) {
-    const meal = diet.meals.find(m => m.key === mealKey)!
-    updateMeal(mealKey, {
-      items: meal.items.map(item => item.key === itemKey ? { ...item, ...changes } : item),
-    })
-  }
-
-  function addMeal() {
-    changeDiet({ meals: [...diet.meals, newMeal()] })
-  }
-
-  function removeMeal(mealKey: number) {
-    changeDiet({ meals: diet.meals.filter(meal => meal.key !== mealKey) })
-  }
-
-  function addItem(mealKey: number) {
-    const meal = diet.meals.find(m => m.key === mealKey)!
-    updateMeal(mealKey, { items: [...meal.items, newItem()] })
-  }
-
-  function removeItem(mealKey: number, itemKey: number) {
-    const meal = diet.meals.find(m => m.key === mealKey)!
-    updateMeal(mealKey, { items: meal.items.filter(item => item.key !== itemKey) })
-  }
-
   // ----- Totais calculados em tempo real -----
 
-  const foodById = (foodId: string) => foods.find(food => food.id === Number(foodId))
-
-  const mealTotals = diet.meals.map(meal =>
-    sum(meal.items.map(item => itemTotals(foodById(item.foodId), item.quantity)))
-  )
-  const dietTotals = sum(mealTotals)
+  const dietTotals = calculateTotals(diet.meals, foods).total
 
   async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -173,16 +95,7 @@ export function DietsForm() {
       const payload = {
         name: diet.name.trim(),
         notes: diet.notes.trim() || null,
-        // Refeições em ordem de horário; linhas sem alimento escolhido são ignoradas
-        meals: [...diet.meals]
-          .sort((a, b) => a.time.localeCompare(b.time))
-          .map(meal => ({
-            name: meal.name.trim(),
-            time: meal.time,
-            items: meal.items
-              .filter(item => item.foodId)
-              .map(item => ({ foodId: Number(item.foodId), quantity: Number(item.quantity) })),
-          })),
+        meals: mealsToPayload(diet.meals),
       }
 
       const response = await apiFetch(isNew ? '/diets' : `/diets/${id}`, {
@@ -281,112 +194,11 @@ export function DietsForm() {
                 </div>
               </div>
 
-              {diet.meals.map((meal, mealIndex) => (
-                <section className="ns-card" key={meal.key} aria-label={`Refeição ${mealIndex + 1}`}>
-                  <div className="row g-2 align-items-end mb-3">
-                    <div className="col-4 col-md-3">
-                      <label htmlFor={`meal-time-${meal.key}`} className="form-label">Horário</label>
-                      <input
-                        id={`meal-time-${meal.key}`}
-                        type="time"
-                        className="form-control"
-                        required
-                        value={meal.time}
-                        onChange={event => updateMeal(meal.key, { time: event.target.value })}
-                      />
-                    </div>
-                    <div className="col">
-                      <label htmlFor={`meal-name-${meal.key}`} className="form-label">Refeição</label>
-                      <input
-                        id={`meal-name-${meal.key}`}
-                        type="text"
-                        className="form-control"
-                        placeholder="Ex.: Lanche da tarde"
-                        required
-                        maxLength={60}
-                        value={meal.name}
-                        onChange={event => updateMeal(meal.key, { name: event.target.value })}
-                      />
-                    </div>
-                    <div className="col-auto">
-                      <button
-                        type="button"
-                        className="btn btn-outline-danger"
-                        aria-label={`Remover refeição ${meal.name || mealIndex + 1}`}
-                        onClick={() => removeMeal(meal.key)}
-                      >
-                        <Icon name="trash" size={16} />
-                      </button>
-                    </div>
-                  </div>
-
-                  {meal.items.map(item => {
-                    const food = foodById(item.foodId)
-                    const totals = itemTotals(food, item.quantity)
-                    return (
-                      <div className="row g-2 align-items-center mb-2" key={item.key}>
-                        <div className="col-12 col-md">
-                          <label htmlFor={`food-${item.key}`} className="visually-hidden">Alimento</label>
-                          <select
-                            id={`food-${item.key}`}
-                            className="form-select"
-                            value={item.foodId}
-                            onChange={event => updateItem(meal.key, item.key, { foodId: event.target.value })}
-                          >
-                            <option value="">Selecione o alimento...</option>
-                            {foods.map(f => (
-                              <option key={f.id} value={f.id}>
-                                {f.name} — {formatPortion(f)}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div className="col-5 col-md-3">
-                          <label htmlFor={`quantity-${item.key}`} className="visually-hidden">Quantidade</label>
-                          <div className="input-group">
-                            <input
-                              id={`quantity-${item.key}`}
-                              type="number"
-                              className="form-control"
-                              placeholder="Qtd."
-                              min="0.01"
-                              step="0.01"
-                              required={item.foodId !== ''}
-                              value={item.quantity}
-                              onChange={event => updateItem(meal.key, item.key, { quantity: event.target.value })}
-                            />
-                            <span className="input-group-text">{food ? unitLabel(food.portionUnit) : 'g'}</span>
-                          </div>
-                        </div>
-                        <div className="col-4 col-md-2 text-end small text-secondary">
-                          {formatNumber(totals.calories)} kcal
-                        </div>
-                        <div className="col-3 col-md-auto text-end">
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-link text-danger"
-                            aria-label="Remover alimento"
-                            onClick={() => removeItem(meal.key, item.key)}
-                          >
-                            <Icon name="close" size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    )
-                  })}
-
-                  <div className="d-flex justify-content-between align-items-center mt-3">
-                    <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => addItem(meal.key)}>
-                      <Icon name="plus" size={16} /> Adicionar alimento
-                    </button>
-                    <span className="fw-semibold">{formatNumber(mealTotals[mealIndex].calories)} kcal</span>
-                  </div>
-                </section>
-              ))}
-
-              <button type="button" className="btn btn-outline-primary align-self-start" onClick={addMeal}>
-                <Icon name="plus" /> Adicionar refeição
-              </button>
+              <MealsEditor
+                meals={diet.meals}
+                foods={foods}
+                onChange={meals => changeDiet({ meals })}
+              />
             </div>
 
             <div className="col-12 col-xl-4">

@@ -17,16 +17,19 @@ type DashboardData = {
   assessments: BodyAssessment[];
 }
 
-function StatCard({ label, value, detail, icon }: { label: string; value: number; detail: string; icon: IconName }) {
+type StatCardProps = { label: string; value: number; detail: string; icon: IconName; to: string }
+
+// Card de indicador; o card inteiro é um link para a página correspondente
+function StatCard({ label, value, detail, icon, to }: StatCardProps) {
   return (
-    <div className="ns-card h-100">
+    <Link to={to} className="ns-card ns-card-link d-block h-100">
       <div className="d-flex justify-content-between align-items-start">
         <span className="ns-stat-label">{label}</span>
         <span className="ns-stat-icon"><Icon name={icon} /></span>
       </div>
       <div className="ns-stat-value">{formatNumber(value)}</div>
       <div className="small text-secondary">{detail}</div>
-    </div>
+    </Link>
   )
 }
 
@@ -136,7 +139,7 @@ export function Dashboard() {
         {term && (
           <div className="ns-card position-absolute w-100 mt-1 py-1 shadow-sm" style={{ zIndex: 10 }}>
             {searchResults.map(patient => (
-              <Link key={patient.id} to={`/pacientes/${patient.id}`} className="ns-list-row">
+              <Link key={patient.id} to={`/pacientes/${patient.id}/prontuario`} className="ns-list-row">
                 <span className="ns-avatar">{getInitials(patient.name)}</span>
                 <span>
                   <span className="ns-list-name fw-semibold d-block">{patient.name}</span>
@@ -160,6 +163,7 @@ export function Dashboard() {
             value={patients.length}
             detail={`${activePatients.length} ${activePatients.length === 1 ? 'ativo' : 'ativos'}`}
             icon="patients"
+            to="/pacientes"
           />
         </div>
         <div className="col-6 col-xl-3">
@@ -168,10 +172,11 @@ export function Dashboard() {
             value={assessmentsThisMonth.length}
             detail={lastAssessment ? `última em ${formatDate(lastAssessment.assessmentDate)}` : 'nenhuma avaliação registrada'}
             icon="activity"
+            to="/avaliacoes"
           />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label="Modelos de Dieta" value={diets.length} detail="templates prontos" icon="diets" />
+          <StatCard label="Modelos de Dieta" value={diets.length} detail="templates prontos" icon="diets" to="/dietas" />
         </div>
         <div className="col-6 col-xl-3">
           <StatCard
@@ -179,6 +184,7 @@ export function Dashboard() {
             value={foods.length}
             detail={`${customFoods} ${customFoods === 1 ? 'adicionado' : 'adicionados'} por você`}
             icon="foods"
+            to="/alimentos"
           />
         </div>
       </div>
@@ -248,7 +254,7 @@ export function Dashboard() {
             {assessedPatients.slice(0, 5).map(patient => {
               const assessment = patient.latestAssessment!
               return (
-                <Link key={patient.id} to={`/pacientes/${patient.id}`} className="ns-list-row">
+                <Link key={patient.id} to={`/pacientes/${patient.id}/prontuario`} className="ns-list-row">
                   <span className="ns-avatar">{getInitials(patient.name)}</span>
                   <span className="flex-grow-1 overflow-hidden">
                     <span className="ns-list-name fw-semibold d-block text-truncate">{patient.name}</span>

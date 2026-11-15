@@ -80,7 +80,7 @@ export function PatientsList() {
         <div>
           <h1>Pacientes</h1>
           <p className="text-secondary mb-0">
-            {patients.length} {patients.length === 1 ? 'paciente cadastrado' : 'pacientes cadastrados'} · clique no nome para editar o cadastro
+            {patients.length} {patients.length === 1 ? 'paciente cadastrado' : 'pacientes cadastrados'} · clique no nome para abrir o prontuário
           </p>
         </div>
 
@@ -141,7 +141,7 @@ export function PatientsList() {
                   <div className="d-flex align-items-center gap-2">
                     <span className="ns-avatar">{getInitials(patient.name)}</span>
                     <div>
-                      <Link to={`/pacientes/${patient.id}`} className="fw-semibold text-decoration-none">
+                      <Link to={`/pacientes/${patient.id}/prontuario`} className="fw-semibold text-decoration-none">
                         {patient.name}
                       </Link>
                       <div className="small text-secondary">{formatCpf(patient.cpf)}</div>
@@ -170,11 +170,11 @@ export function PatientsList() {
                 </td>
                 <td className="text-end text-nowrap">
                   <Link
-                    to={`/pacientes/${patient.id}`}
+                    to={`/pacientes/${patient.id}/prontuario`}
                     className="btn btn-sm btn-outline-primary me-2"
-                    aria-label={`Editar paciente ${patient.name}`}
+                    aria-label={`Abrir prontuário de ${patient.name}`}
                   >
-                    <Icon name="edit" size={16} /> Editar
+                    <Icon name="file" size={16} /> Prontuário
                   </Link>
                   <button
                     type="button"

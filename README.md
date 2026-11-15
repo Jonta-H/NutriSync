@@ -43,6 +43,9 @@ Acesse com o usuário criado pelo seed: login **nutri**, senha **nutri123**.
 - **Login** com token JWT; todas as rotas da API, exceto o login, exigem o token.
 - **Painel** com indicadores (pacientes, avaliações do mês, modelos de dieta, alimentos), busca rápida, Gasto Energético Total por paciente e últimos atendidos.
 - **Pacientes**: listagem com busca e filtro por status, cadastro, edição e exclusão. A meta diária (GET e água) vem da última avaliação corporal.
+- **Prontuário** do paciente: dados pessoais, indicadores atuais (IMC, TMB, GET e água, com variação de peso), histórico de avaliações corporais e planos alimentares atribuídos.
+- **Avaliações corporais**: registro e edição com IMC, água, TMB e GET calculados enquanto se digita; listagem geral em `/avaliacoes`.
+- **Planos alimentares**: plano do paciente criado do zero ou a partir de um modelo de dieta (refeições copiadas e ajustáveis), com total comparado ao GET.
 - **Alimentos**: banco de alimentos com valores por porção; cadastro, edição e exclusão.
 - **Dietas (modelos)**: modelos com refeições e alimentos, totais de energia e macronutrientes calculados em tempo real; cadastro, edição e exclusão.
 
@@ -54,11 +57,14 @@ Acesse com o usuário criado pelo seed: login **nutri**, senha **nutri123**.
 | GET | `/auth/me` | Dados do usuário logado |
 | GET, POST | `/patients` | Lista (com idade e indicadores da última avaliação) / cadastra |
 | GET, PUT, DELETE | `/patients/:id` | Busca / atualiza / exclui |
-| GET, POST | `/body-assessments` | Lista / cadastra avaliações corporais |
+| GET, POST | `/body-assessments` | Lista / cadastra avaliações corporais (com IMC, TMB, GET e água calculados) |
 | GET | `/body-assessments/patient/:patientId` | Avaliações de um paciente |
 | GET, PUT, DELETE | `/body-assessments/:id` | Busca / atualiza / exclui |
 | GET, POST | `/foods` | Lista / cadastra alimentos |
 | GET, PUT, DELETE | `/foods/:id` | Busca / atualiza / exclui |
+| GET, POST | `/meal-plans` | Lista / atribui planos alimentares (com `dietId` e sem `meals`, copia o modelo) |
+| GET | `/meal-plans/patient/:patientId` | Planos de um paciente |
+| GET, PUT, DELETE | `/meal-plans/:id` | Busca / atualiza / exclui |
 | GET, POST | `/diets` | Lista / cadastra modelos de dieta (com refeições) |
 | GET, PUT, DELETE | `/diets/:id` | Busca / atualiza / exclui |
 

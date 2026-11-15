@@ -198,6 +198,20 @@ h1, h2, h3, .h1, .h2, .h3 {
   padding: 1.25rem;
 }
 
+/* Card clicável (indicadores do Painel) */
+.ns-card-link {
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ns-card-link:hover,
+.ns-card-link:focus-visible {
+  color: inherit;
+  border-color: var(--ns-primary);
+  box-shadow: 0 4px 14px rgba(126, 87, 194, 0.15);
+}
+
 .ns-card-title {
   font-size: 1rem;
   font-weight: 700;
@@ -537,4 +551,28 @@ h1, h2, h3, .h1, .h2, .h3 {
   .ns-login-hero {
     display: none;
   }
+}
+
+/* ---------- Prontuário ---------- */
+
+.ns-avatar-lg {
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.1rem;
+}
+
+.ns-data-list dt {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ns-muted);
+}
+
+.ns-data-list dd {
+  margin-bottom: 0.75rem;
+}
+
+.ns-preview {
+  background: var(--ns-primary-soft);
+  border-radius: 0.7rem;
+  padding: 0.75rem;
 }
