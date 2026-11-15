@@ -53,6 +53,10 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
   font-weight: 500;
 }
 
@@ -109,12 +113,6 @@ h1, h2, h3, .h1, .h2, .h3 {
   width: 100%;
   height: 100%;
   object-fit: contain;
-}
-
-.ns-logo-lg {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
 }
 
 .ns-brand-sub {
@@ -219,6 +217,16 @@ h1, h2, h3, .h1, .h2, .h3 {
   margin: 0.35rem 0;
 }
 
+.ns-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  background: var(--ns-primary-soft);
+  color: var(--ns-primary);
+}
 
 .ns-avatar {
   display: inline-flex;
@@ -281,6 +289,22 @@ h1, h2, h3, .h1, .h2, .h3 {
   overflow: hidden;
 }
 
+.ns-search {
+  position: relative;
+}
+
+.ns-search .ns-search-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ns-muted);
+  pointer-events: none;
+}
+
+.ns-search .form-control {
+  padding-left: 2.4rem;
+}
 
 .ns-tabs .btn {
   border-radius: 999px;
@@ -420,6 +444,7 @@ h1, h2, h3, .h1, .h2, .h3 {
   text-overflow: ellipsis;
 }
 
+
 .ns-macro {
   background: #f5f1fa;
   border-radius: 0.7rem;
@@ -479,10 +504,17 @@ h1, h2, h3, .h1, .h2, .h3 {
 }
 
 .ns-login-hero li {
+  display: flex;
+  gap: 0.6rem;
   margin-bottom: 0.85rem;
   color: var(--ns-sidebar-text);
 }
 
+.ns-login-hero li svg {
+  flex-shrink: 0;
+  color: #c9b3ef;
+  margin-top: 0.15rem;
+}
 
 .ns-login-form {
   display: flex;

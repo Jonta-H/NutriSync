@@ -2,21 +2,20 @@ import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router'
 import { useAuth } from '../contexts/AuthContext'
 import { getInitials } from '../utils/format'
-import logo from '../assets/logo.png'
+import { Icon, Logo } from './Icon'
+import type { IconName } from './Icon'
 
-const menu = [
-  { to: '/dashboard', label: 'Painel' },
-  { to: '/pacientes', label: 'Pacientes' },
-  { to: '/dietas', label: 'Dietas (modelos)' },
-  { to: '/alimentos', label: 'Alimentos' },
+const menu: { to: string; label: string; icon: IconName }[] = [
+  { to: '/dashboard', label: 'Painel', icon: 'dashboard' },
+  { to: '/pacientes', label: 'Pacientes', icon: 'patients' },
+  { to: '/dietas', label: 'Dietas (modelos)', icon: 'diets' },
+  { to: '/alimentos', label: 'Alimentos', icon: 'foods' },
 ]
 
 function Brand() {
   return (
     <div className="d-flex align-items-center gap-2">
-      <span className="ns-logo">
-        <img src={logo} alt="" />
-      </span>
+      <Logo />
       <div className="lh-sm">
         <div className="fw-bold fs-5 text-white">NutriSync</div>
         <div className="ns-brand-sub">Clínica Nutricional</div>
@@ -43,11 +42,12 @@ export function Layout() {
         <Brand />
         <button
           type="button"
-          className="btn btn-sm btn-outline-light"
+          className="btn btn-link text-white p-1"
+          aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen(open => !open)}
         >
-          {menuOpen ? 'Fechar' : 'Menu'}
+          <Icon name={menuOpen ? 'close' : 'menu'} size={24} />
         </button>
       </header>
 
@@ -61,6 +61,7 @@ export function Layout() {
             {menu.map(item => (
               <li className="nav-item" key={item.to}>
                 <NavLink to={item.to} className="ns-nav-link" onClick={() => setMenuOpen(false)}>
+                  <Icon name={item.icon} />
                   {item.label}
                 </NavLink>
               </li>
@@ -77,6 +78,7 @@ export function Layout() {
             </div>
           </div>
           <button type="button" className="ns-nav-link w-100 border-0 bg-transparent" onClick={handleLogout}>
+            <Icon name="logout" />
             Sair
           </button>
         </div>

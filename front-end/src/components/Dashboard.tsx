@@ -7,6 +7,8 @@ import type { Food } from '../types/Food'
 import type { BodyAssessment } from '../types/BodyAssessment'
 import { apiGet } from '../utils/api'
 import { formatCpf, formatDate, formatNumber, getInitials } from '../utils/format'
+import { Icon } from './Icon'
+import type { IconName } from './Icon'
 
 type DashboardData = {
   patients: Patient[];
@@ -15,10 +17,13 @@ type DashboardData = {
   assessments: BodyAssessment[];
 }
 
-function StatCard({ label, value, detail }: { label: string; value: number; detail: string }) {
+function StatCard({ label, value, detail, icon }: { label: string; value: number; detail: string; icon: IconName }) {
   return (
     <div className="ns-card h-100">
-      <span className="ns-stat-label">{label}</span>
+      <div className="d-flex justify-content-between align-items-start">
+        <span className="ns-stat-label">{label}</span>
+        <span className="ns-stat-icon"><Icon name={icon} /></span>
+      </div>
       <div className="ns-stat-value">{formatNumber(value)}</div>
       <div className="small text-secondary">{detail}</div>
     </div>
@@ -108,17 +113,18 @@ export function Dashboard() {
 
         <div className="d-flex flex-wrap gap-2">
           <Link to="/pacientes/new" className="btn btn-primary">
-            Novo Paciente
+            <Icon name="plus" /> Novo Paciente
           </Link>
           <Link to="/dietas/new" className="btn btn-outline-primary">
-            Novo modelo de dieta
+            <Icon name="diets" /> Novo modelo de dieta
           </Link>
         </div>
       </div>
 
-      <div className="position-relative mb-4">
+      <div className="ns-search mb-4">
         <label htmlFor="quick-search" className="visually-hidden">Busca rápida de pacientes</label>
-                <input
+        <Icon name="search" className="ns-search-icon" />
+        <input
           id="quick-search"
           type="search"
           className="form-control form-control-lg"
@@ -153,6 +159,7 @@ export function Dashboard() {
             label="Total de Pacientes"
             value={patients.length}
             detail={`${activePatients.length} ${activePatients.length === 1 ? 'ativo' : 'ativos'}`}
+            icon="patients"
           />
         </div>
         <div className="col-6 col-xl-3">
@@ -160,16 +167,18 @@ export function Dashboard() {
             label={`Avaliações em ${monthName}`}
             value={assessmentsThisMonth.length}
             detail={lastAssessment ? `última em ${formatDate(lastAssessment.assessmentDate)}` : 'nenhuma avaliação registrada'}
+            icon="activity"
           />
         </div>
         <div className="col-6 col-xl-3">
-          <StatCard label="Modelos de Dieta" value={diets.length} detail="templates prontos" />
+          <StatCard label="Modelos de Dieta" value={diets.length} detail="templates prontos" icon="diets" />
         </div>
         <div className="col-6 col-xl-3">
           <StatCard
             label="Alimentos cadastrados"
             value={foods.length}
             detail={`${customFoods} ${customFoods === 1 ? 'adicionado' : 'adicionados'} por você`}
+            icon="foods"
           />
         </div>
       </div>

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router'
 import type { Patient } from '../types/Patient'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatCpf, formatPhone } from '../utils/format'
+import { Icon } from './Icon'
 
 // Inputs controlados recebem strings; a conversão para os tipos
 // esperados pelo back-end ocorre antes da gravação.
@@ -147,6 +148,9 @@ export function PatientsForm() {
     <>
       <div className="ns-page-header">
         <div>
+          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
+            <Icon name="back" size={16} /> Pacientes
+          </button>
           <h1>{isNew ? 'Novo paciente' : 'Editar paciente'}</h1>
           <p className="text-secondary mb-0">
             Os dados pessoais são usados nos cálculos da avaliação corporal.

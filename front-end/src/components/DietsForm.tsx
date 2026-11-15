@@ -4,6 +4,7 @@ import type { Diet, NutritionTotals } from '../types/Diet'
 import type { Food } from '../types/Food'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatNumber, formatPortion, unitLabel } from '../utils/format'
+import { Icon } from './Icon'
 
 // Estado do formulário: campos como string; "key" identifica cada linha na tela
 type ItemForm = { key: number; foodId: string; quantity: string }
@@ -225,6 +226,9 @@ export function DietsForm() {
     <>
       <div className="ns-page-header">
         <div>
+          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
+            <Icon name="back" size={16} /> Dietas (modelos)
+          </button>
           <h1>{isNew ? 'Novo modelo de dieta' : 'Editar modelo de dieta'}</h1>
           <p className="text-secondary mb-0">Monte as refeições; os totais são atualizados enquanto você edita.</p>
         </div>
@@ -308,9 +312,10 @@ export function DietsForm() {
                       <button
                         type="button"
                         className="btn btn-outline-danger"
+                        aria-label={`Remover refeição ${meal.name || mealIndex + 1}`}
                         onClick={() => removeMeal(meal.key)}
                       >
-                        Remover refeição
+                        <Icon name="trash" size={16} />
                       </button>
                     </div>
                   </div>
@@ -360,9 +365,10 @@ export function DietsForm() {
                           <button
                             type="button"
                             className="btn btn-sm btn-link text-danger"
+                            aria-label="Remover alimento"
                             onClick={() => removeItem(meal.key, item.key)}
                           >
-                            Remover
+                            <Icon name="close" size={16} />
                           </button>
                         </div>
                       </div>
@@ -371,7 +377,7 @@ export function DietsForm() {
 
                   <div className="d-flex justify-content-between align-items-center mt-3">
                     <button type="button" className="btn btn-sm btn-outline-primary" onClick={() => addItem(meal.key)}>
-                      Adicionar alimento
+                      <Icon name="plus" size={16} /> Adicionar alimento
                     </button>
                     <span className="fw-semibold">{formatNumber(mealTotals[mealIndex].calories)} kcal</span>
                   </div>
@@ -379,7 +385,7 @@ export function DietsForm() {
               ))}
 
               <button type="button" className="btn btn-outline-primary align-self-start" onClick={addMeal}>
-                Adicionar refeição
+                <Icon name="plus" /> Adicionar refeição
               </button>
             </div>
 

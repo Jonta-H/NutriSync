@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import type { Diet } from '../types/Diet'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatNumber, unitLabel } from '../utils/format'
+import { Icon } from './Icon'
 
 export function DietsList() {
   const [diets, setDiets] = useState<Diet[]>([])
@@ -68,7 +69,7 @@ export function DietsList() {
         </div>
 
         <Link to="/dietas/new" className="btn btn-primary">
-          Novo modelo
+          <Icon name="plus" /> Novo modelo
         </Link>
       </div>
 
@@ -114,10 +115,10 @@ export function DietsList() {
                   </div>
                   <div className="d-flex gap-2">
                     <Link to={`/dietas/${selected.id}`} className="btn btn-sm btn-outline-primary">
-                      Editar
+                      <Icon name="edit" size={16} /> Editar
                     </Link>
                     <button type="button" className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(selected)}>
-                      Excluir
+                      <Icon name="trash" size={16} /> Excluir
                     </button>
                   </div>
                 </div>

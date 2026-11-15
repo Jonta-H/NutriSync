@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import type { Patient } from '../types/Patient'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatCpf, formatDate, formatNumber, getInitials } from '../utils/format'
+import { Icon } from './Icon'
 
 type StatusFilter = 'todos' | 'ativos' | 'inativos'
 
@@ -84,14 +85,15 @@ export function PatientsList() {
         </div>
 
         <Link to="/pacientes/new" className="btn btn-primary">
-          Novo paciente
+          <Icon name="plus" /> Novo paciente
         </Link>
       </div>
 
       <div className="d-flex flex-wrap gap-3 align-items-center mb-3">
-        <div className="flex-grow-1" style={{ minWidth: 240 }}>
+        <div className="ns-search flex-grow-1" style={{ minWidth: 240 }}>
           <label htmlFor="patient-search" className="visually-hidden">Buscar por nome, CPF ou telefone</label>
-                    <input
+          <Icon name="search" className="ns-search-icon" />
+          <input
             id="patient-search"
             type="search"
             className="form-control"
@@ -172,14 +174,15 @@ export function PatientsList() {
                     className="btn btn-sm btn-outline-primary me-2"
                     aria-label={`Editar paciente ${patient.name}`}
                   >
-                    Editar
+                    <Icon name="edit" size={16} /> Editar
                   </Link>
                   <button
                     type="button"
                     className="btn btn-sm btn-outline-danger"
+                    aria-label={`Excluir paciente ${patient.name}`}
                     onClick={() => handleDelete(patient)}
                   >
-                    Excluir
+                    <Icon name="trash" size={16} />
                   </button>
                 </td>
               </tr>

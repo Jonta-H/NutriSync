@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import type { Food } from '../types/Food'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatNumber, formatPortion } from '../utils/format'
+import { Icon } from './Icon'
 
 export function FoodsList() {
   const [foods, setFoods] = useState<Food[]>([])
@@ -59,13 +60,14 @@ export function FoodsList() {
         </div>
 
         <Link to="/alimentos/new" className="btn btn-primary">
-          Novo alimento
+          <Icon name="plus" /> Novo alimento
         </Link>
       </div>
 
-      <div className="mb-3" style={{ maxWidth: 420 }}>
+      <div className="ns-search mb-3" style={{ maxWidth: 420 }}>
         <label htmlFor="food-search" className="visually-hidden">Buscar alimento</label>
-                <input
+        <Icon name="search" className="ns-search-icon" />
+        <input
           id="food-search"
           type="search"
           className="form-control"
@@ -112,15 +114,17 @@ export function FoodsList() {
                   <Link
                     to={`/alimentos/${food.id}`}
                     className="btn btn-sm btn-outline-primary me-2"
+                    aria-label={`Editar alimento ${food.name}`}
                   >
-                    Editar
+                    <Icon name="edit" size={16} />
                   </Link>
                   <button
                     type="button"
                     className="btn btn-sm btn-outline-danger"
+                    aria-label={`Excluir alimento ${food.name}`}
                     onClick={() => handleDelete(food)}
                   >
-                    Excluir
+                    <Icon name="trash" size={16} />
                   </button>
                 </td>
               </tr>
