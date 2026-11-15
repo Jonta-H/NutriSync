@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import type { Food } from '../types/Food'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
-import { Icon } from './Icon'
+import { useDialog } from '../contexts/DialogContext'
+import { Breadcrumb } from './Breadcrumb'
 
 // Inputs controlados recebem strings, inclusive os campos numéricos.
 const formDefaults = {
@@ -27,6 +28,7 @@ const nutrientFields = [
 ] as const
 
 export function FoodsForm() {
+  const { showAlert, showConfirm } = useDialog()
   const { id } = useParams()
   const navigate = useNavigate()
   const isNew = id === 'new'
@@ -69,7 +71,7 @@ export function FoodsForm() {
       if (active) {
         setLoadFailed(true)
         const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-        window.alert(`Não foi possível carregar os dados. ${message}`)
+        showAlert(`Não foi possível carregar os dados. ${message}`, 'error')
       }
     }
     finally {
@@ -121,25 +123,36 @@ export function FoodsForm() {
       }
 
       setFormModified(false)
-      window.alert('Alimento salvo com sucesso.')
       navigate('/alimentos')
+      showAlert('Alimento salvo com sucesso.', 'success')
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível salvar o alimento. ${message}`)
+      showAlert(`Não foi possível salvar o alimento. ${message}`, 'error')
     }
     finally {
       setLoading(false)
     }
   }
 
-  function handleBackButtonClick() {
-    if (formModified && !window.confirm('Há informações não salvas. Deseja realmente sair?')) {
+  // Sair do formulário (trilha de navegação ou botão Voltar), avisando se houver algo não salvo
+  async function handleLeave(to: string) {
+    if (formModified && !await showConfirm({
+      title: 'Sair sem salvar?',
+      message: 'Há informações não salvas neste formulário. Deseja realmente sair?',
+      confirmLabel: 'Sair sem salvar',
+    })) {
       return
     }
 
-    navigate('/alimentos')
+    navigate(to)
   }
+
+  const backPath = '/alimentos'
+  const trail = [
+    { label: 'Banco de alimentos', to: '/alimentos' },
+    { label: isNew ? 'Novo alimento' : 'Editar alimento' },
+  ]
 
   const unit = food.portionUnit === 'ML' ? 'ml' : 'g'
 
@@ -147,9 +160,7 @@ export function FoodsForm() {
     <>
       <div className="ns-page-header">
         <div>
-          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
-            <Icon name="back" size={16} /> Banco de alimentos
-          </button>
+          <Breadcrumb items={trail} onNavigate={handleLeave} />
           <h1>{isNew ? 'Novo alimento' : 'Editar alimento'}</h1>
           <p className="text-secondary mb-0">
             Informe os valores nutricionais referentes à porção indicada.
@@ -260,7 +271,7 @@ export function FoodsForm() {
             <button type="submit" className="btn btn-primary">
               Salvar
             </button>
-            <button type="button" className="btn btn-outline-secondary" onClick={handleBackButtonClick}>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => handleLeave(backPath)}>
               Voltar
             </button>
           </div>

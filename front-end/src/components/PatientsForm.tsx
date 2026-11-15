@@ -3,7 +3,8 @@ import { useNavigate, useParams } from 'react-router'
 import type { Patient } from '../types/Patient'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatCpf, formatPhone } from '../utils/format'
-import { Icon } from './Icon'
+import { useDialog } from '../contexts/DialogContext'
+import { Breadcrumb } from './Breadcrumb'
 
 // Inputs controlados recebem strings; a conversão para os tipos
 // esperados pelo back-end ocorre antes da gravação.
@@ -20,6 +21,7 @@ const formDefaults = {
 const genders = ['Feminino', 'Masculino', 'Não binário', 'Prefere não informar']
 
 export function PatientsForm() {
+  const { showAlert, showConfirm } = useDialog()
   const { id } = useParams()
   const navigate = useNavigate()
   const isNew = id === 'new'
@@ -28,6 +30,8 @@ export function PatientsForm() {
   const [loading, setLoading] = useState(!isNew)
   const [loadFailed, setLoadFailed] = useState(false)
   const [formModified, setFormModified] = useState(false)
+  // Nome como estava salvo, para a trilha de navegação não mudar enquanto se digita
+  const [savedName, setSavedName] = useState('')
 
   // Na edição, busca os dados do paciente para preencher o formulário
   async function loadData(active: boolean) {
@@ -46,6 +50,7 @@ export function PatientsForm() {
       const result = await apiGet<Patient>(`/patients/${id}`)
 
       if (active) {
+        setSavedName(result.name)
         setPatient({
           name: result.name,
           birthDate: result.birthDate.slice(0, 10),
@@ -61,7 +66,7 @@ export function PatientsForm() {
       if (active) {
         setLoadFailed(true)
         const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-        window.alert(`Não foi possível carregar os dados. ${message}`)
+        showAlert(`Não foi possível carregar os dados. ${message}`, 'error')
       }
     }
     finally {
@@ -98,7 +103,7 @@ export function PatientsForm() {
     if (loading || loadFailed) return
 
     if (patient.cpf.replace(/\D/g, '').length !== 11) {
-      window.alert('Informe o CPF completo, com 11 dígitos.')
+      showAlert('Informe o CPF completo, com 11 dígitos.', 'warning')
       return
     }
 
@@ -125,26 +130,39 @@ export function PatientsForm() {
       const saved: Patient = await response.json()
 
       setFormModified(false)
-      window.alert('Paciente salvo com sucesso.')
       navigate(`/pacientes/${saved.id}/prontuario`)
+      showAlert('Paciente salvo com sucesso.', 'success')
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível salvar o paciente. ${message}`)
+      showAlert(`Não foi possível salvar o paciente. ${message}`, 'error')
     }
     finally {
       setLoading(false)
     }
   }
 
-  function handleBackButtonClick() {
-    if (formModified && !window.confirm('Há informações não salvas. Deseja realmente sair?')) {
+  // Sair do formulário (trilha de navegação ou botão Voltar), avisando se houver algo não salvo
+  async function handleLeave(to: string) {
+    if (formModified && !await showConfirm({
+      title: 'Sair sem salvar?',
+      message: 'Há informações não salvas neste formulário. Deseja realmente sair?',
+      confirmLabel: 'Sair sem salvar',
+    })) {
       return
     }
 
-    // Cadastro novo volta para a listagem; edição volta para o prontuário
-    navigate(isNew ? '/pacientes' : `/pacientes/${id}/prontuario`)
+    navigate(to)
   }
+
+  const backPath = isNew ? '/pacientes' : `/pacientes/${id}/prontuario`
+  const trail = isNew
+    ? [{ label: 'Pacientes', to: '/pacientes' }, { label: 'Novo paciente' }]
+    : [
+        { label: 'Pacientes', to: '/pacientes' },
+        { label: savedName || 'Prontuário', to: backPath },
+        { label: 'Editar dados' },
+      ]
 
   const today = new Date().toISOString().slice(0, 10)
 
@@ -152,9 +170,7 @@ export function PatientsForm() {
     <>
       <div className="ns-page-header">
         <div>
-          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
-            <Icon name="back" size={16} /> {isNew ? 'Pacientes' : 'Prontuário'}
-          </button>
+          <Breadcrumb items={trail} onNavigate={handleLeave} />
           <h1>{isNew ? 'Novo paciente' : 'Editar paciente'}</h1>
           <p className="text-secondary mb-0">
             Os dados pessoais são usados nos cálculos da avaliação corporal.
@@ -294,7 +310,7 @@ export function PatientsForm() {
             <button type="submit" className="btn btn-primary">
               Salvar
             </button>
-            <button type="button" className="btn btn-outline-secondary" onClick={handleBackButtonClick}>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => handleLeave(backPath)}>
               Voltar
             </button>
           </div>

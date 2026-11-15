@@ -5,7 +5,8 @@ import type { Food } from '../types/Food'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatNumber } from '../utils/format'
 import { calculateTotals, defaultMeals, mealsFromApi, mealsToPayload } from '../utils/meals'
-import { Icon } from './Icon'
+import { useDialog } from '../contexts/DialogContext'
+import { Breadcrumb } from './Breadcrumb'
 import { MealsEditor } from './MealsEditor'
 
 const formDefaults = () => ({
@@ -15,6 +16,7 @@ const formDefaults = () => ({
 })
 
 export function DietsForm() {
+  const { showAlert, showConfirm } = useDialog()
   const { id } = useParams()
   const navigate = useNavigate()
   const isNew = id === 'new'
@@ -52,7 +54,7 @@ export function DietsForm() {
       if (active) {
         setLoadFailed(true)
         const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-        window.alert(`Não foi possível carregar os dados. ${message}`)
+        showAlert(`Não foi possível carregar os dados. ${message}`, 'error')
       }
     }
     finally {
@@ -85,7 +87,7 @@ export function DietsForm() {
     if (loading || loadFailed) return
 
     if (diet.meals.length === 0) {
-      window.alert('Adicione pelo menos uma refeição ao modelo.')
+      showAlert('Adicione pelo menos uma refeição ao modelo.', 'warning')
       return
     }
 
@@ -108,25 +110,36 @@ export function DietsForm() {
       }
 
       setFormModified(false)
-      window.alert('Modelo de dieta salvo com sucesso.')
       navigate('/dietas')
+      showAlert('Modelo de dieta salvo com sucesso.', 'success')
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível salvar o modelo. ${message}`)
+      showAlert(`Não foi possível salvar o modelo. ${message}`, 'error')
     }
     finally {
       setLoading(false)
     }
   }
 
-  function handleBackButtonClick() {
-    if (formModified && !window.confirm('Há informações não salvas. Deseja realmente sair?')) {
+  // Sair do formulário (trilha de navegação ou botão Voltar), avisando se houver algo não salvo
+  async function handleLeave(to: string) {
+    if (formModified && !await showConfirm({
+      title: 'Sair sem salvar?',
+      message: 'Há informações não salvas neste formulário. Deseja realmente sair?',
+      confirmLabel: 'Sair sem salvar',
+    })) {
       return
     }
 
-    navigate('/dietas')
+    navigate(to)
   }
+
+  const backPath = '/dietas'
+  const trail = [
+    { label: 'Dietas (modelos)', to: '/dietas' },
+    { label: isNew ? 'Novo modelo de dieta' : 'Editar modelo de dieta' },
+  ]
 
   const macros = [
     { label: 'Proteínas', value: dietTotals.protein },
@@ -139,9 +152,7 @@ export function DietsForm() {
     <>
       <div className="ns-page-header">
         <div>
-          <button type="button" className="btn btn-link px-0 mb-2" onClick={handleBackButtonClick}>
-            <Icon name="back" size={16} /> Dietas (modelos)
-          </button>
+          <Breadcrumb items={trail} onNavigate={handleLeave} />
           <h1>{isNew ? 'Novo modelo de dieta' : 'Editar modelo de dieta'}</h1>
           <p className="text-secondary mb-0">Monte as refeições; os totais são atualizados enquanto você edita.</p>
         </div>
@@ -220,7 +231,7 @@ export function DietsForm() {
 
                 <div className="d-grid gap-2">
                   <button type="submit" className="btn btn-primary">Salvar modelo</button>
-                  <button type="button" className="btn btn-outline-secondary" onClick={handleBackButtonClick}>
+                  <button type="button" className="btn btn-outline-secondary" onClick={() => handleLeave(backPath)}>
                     Voltar
                   </button>
                 </div>

@@ -7,6 +7,7 @@ import type { Food } from '../types/Food'
 import type { BodyAssessment } from '../types/BodyAssessment'
 import { apiGet } from '../utils/api'
 import { formatCpf, formatDate, formatNumber, getInitials } from '../utils/format'
+import { useDialog } from '../contexts/DialogContext'
 import { Icon } from './Icon'
 import type { IconName } from './Icon'
 
@@ -34,6 +35,7 @@ function StatCard({ label, value, detail, icon, to }: StatCardProps) {
 }
 
 export function Dashboard() {
+  const { showAlert } = useDialog()
   const { user } = useAuth()
   const [data, setData] = useState<DashboardData>({ patients: [], diets: [], foods: [], assessments: [] })
   const [loading, setLoading] = useState(true)
@@ -53,7 +55,7 @@ export function Dashboard() {
     }
     catch (error) {
       if (active && error instanceof Error) {
-        window.alert('ERRO: ' + error.message)
+        showAlert(`Não foi possível carregar os dados. ${error.message}`, 'error')
       }
     }
     finally {
@@ -120,6 +122,9 @@ export function Dashboard() {
           </Link>
           <Link to="/dietas/new" className="btn btn-outline-primary">
             <Icon name="diets" /> Novo modelo de dieta
+          </Link>
+          <Link to="/planos/new" className="btn btn-outline-primary">
+            <Icon name="file" /> Novo plano alimentar
           </Link>
         </div>
       </div>

@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router'
 import { useAuth } from '../contexts/AuthContext'
+import { useDialog } from '../contexts/DialogContext'
 import { Icon, Logo } from './Icon'
 
 export function Login() {
+  const { showAlert } = useDialog()
   const { user, login } = useAuth()
   const navigate = useNavigate()
 
@@ -108,7 +110,7 @@ export function Login() {
               <button
                 type="button"
                 className="btn btn-link btn-sm p-0"
-                onClick={() => window.alert('Peça ao administrador do sistema para redefinir sua senha.')}
+                onClick={() => showAlert('Peça ao administrador do sistema para redefinir sua senha.', 'info', 'Esqueceu a senha?')}
               >
                 Esqueci minha senha
               </button>

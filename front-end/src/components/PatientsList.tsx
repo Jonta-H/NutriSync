@@ -3,11 +3,13 @@ import { Link } from 'react-router'
 import type { Patient } from '../types/Patient'
 import { apiFetch, apiGet, getErrorMessage } from '../utils/api'
 import { formatCpf, formatDate, formatNumber, getInitials } from '../utils/format'
+import { useDialog } from '../contexts/DialogContext'
 import { Icon } from './Icon'
 
 type StatusFilter = 'todos' | 'ativos' | 'inativos'
 
 export function PatientsList() {
+  const { showAlert, showConfirm } = useDialog()
   const [patients, setPatients] = useState<Patient[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -20,7 +22,7 @@ export function PatientsList() {
     }
     catch (error) {
       if (error instanceof Error) {
-        window.alert('ERRO: ' + error.message)
+        showAlert(`Não foi possível carregar os dados. ${error.message}`, 'error')
       }
     }
     finally {
@@ -33,7 +35,12 @@ export function PatientsList() {
   }, [])
 
   async function handleDelete(patient: Patient) {
-    if (!window.confirm(`Deseja realmente excluir o paciente ${patient.name}? As avaliações dele também serão excluídas.`)) {
+    if (!await showConfirm({
+      title: 'Excluir paciente?',
+      message: <>O paciente <strong>{patient.name}</strong> será excluído junto com todas as avaliações corporais e planos alimentares dele.</>,
+      confirmLabel: 'Excluir paciente',
+      danger: true,
+    })) {
       return
     }
 
@@ -44,12 +51,12 @@ export function PatientsList() {
         throw new Error(await getErrorMessage(response))
       }
 
-      window.alert('Paciente excluído com sucesso.')
+      showAlert('Paciente excluído com sucesso.', 'success')
       fetchData()
     }
     catch (error) {
       const message = error instanceof Error ? error.message : 'Erro desconhecido.'
-      window.alert(`Não foi possível excluir o paciente. ${message}`)
+      showAlert(`Não foi possível excluir o paciente. ${message}`, 'error')
     }
   }
 
